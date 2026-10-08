@@ -11,15 +11,10 @@ final splashControllerProvider =
     AsyncNotifierProvider<SplashController, String>(SplashController.new);
 
 class SplashController extends AsyncNotifier<String> {
+  // The minimum display time lives in SplashScreen, counted from when the
+  // splash is actually on screen; this only works out where to go.
   @override
-  Future<String> build() async {
-    final minimumSplashDuration = Future<void>.delayed(
-      const Duration(seconds: 5),
-    );
-    final destination = _resolveDestination();
-    await Future.wait([minimumSplashDuration, destination]);
-    return destination;
-  }
+  Future<String> build() => _resolveDestination();
 
   Future<String> _resolveDestination() async {
     final local = ref.read(localStorageServiceProvider);

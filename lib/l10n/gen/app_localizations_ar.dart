@@ -705,5 +705,5 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profilePreferences => 'التفضيلات';
 
   @override
-  String get profileSettingsSubtitle => 'المظهر والشؤون القانونية والجلسة';
+  String get profileSettingsSubtitle => 'اللغة والمظهر والمزيد';
 }

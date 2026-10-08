@@ -29,9 +29,6 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileControllerProvider);
     final l10n = AppLocalizations.of(context);
-    final languageName = Localizations.localeOf(context).languageCode == 'ar'
-        ? l10n.languageArabic
-        : l10n.languageEnglish;
 
     // The gradient header runs under the status bar, so use light icons.
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -103,12 +100,6 @@ class ProfileScreen extends ConsumerWidget {
                       ProfileMenuSection(
                         title: l10n.profilePreferences,
                         children: [
-                          ProfileMenuItem(
-                            icon: Icons.translate_rounded,
-                            title: l10n.languageTitle,
-                            subtitle: languageName,
-                            onTap: () => context.push(RouteNames.language),
-                          ),
                           ProfileMenuItem(
                             icon: Icons.tune_rounded,
                             title: l10n.settingsTitle,

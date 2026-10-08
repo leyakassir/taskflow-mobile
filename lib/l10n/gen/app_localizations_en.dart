@@ -703,5 +703,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profilePreferences => 'Preferences';
 
   @override
-  String get profileSettingsSubtitle => 'Appearance, legal and session';
+  String get profileSettingsSubtitle => 'Language, appearance and more';
 }

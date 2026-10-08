@@ -1337,7 +1337,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileSettingsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Appearance, legal and session'**
+  /// **'Language, appearance and more'**
   String get profileSettingsSubtitle;
 }
 

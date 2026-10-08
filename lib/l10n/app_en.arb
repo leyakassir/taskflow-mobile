@@ -1,0 +1,292 @@
+{
+  "appName": "TaskFlow",
+  "skip": "Skip",
+  "next": "Next",
+  "back": "Back",
+  "getStarted": "Get Started",
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "signIn": "Sign in",
+  "homeTab": "Home",
+  "tasksTab": "Tasks",
+  "notificationsTab": "Notifications",
+  "profileTab": "Profile",
+  "onboardingTitle1": "Get Your Tasks Done",
+  "onboardingDesc1": "View your assigned work, track progress, and stay productive on the go.",
+  "onboardingTitle2": "Stay Organized",
+  "onboardingDesc2": "Review task details and checklists, then add optional notes and evidence when you finish.",
+  "onboardingTitle3": "Secure & Reliable",
+  "onboardingDesc3": "Your sign-in credentials are stored securely. Focus on your assigned work.",
+  "authNotReady": "Authentication API will be implemented in Phase 2.",
+  "fieldsRequired": "Please enter both email and password.",
+  "invalidEmail": "Please enter a valid email address.",
+  "genericError": "Something went wrong. Please try again.",
+  "settingsTitle": "Settings",
+  "settingsHeadline": "Make TaskFlow yours",
+  "settingsSubhead": "Personalize your app appearance and language.",
+  "appearanceTitle": "Appearance",
+  "appearanceHelp": "Choose how TaskFlow looks on this device.",
+  "appearanceSystem": "System",
+  "appearanceLight": "Light",
+  "appearanceDark": "Dark",
+  "languageTitle": "Language",
+  "languageHelp": "Choose the language used in the app.",
+  "languageSystem": "System",
+  "languageEnglish": "English",
+  "languageArabic": "Arabic",
+  "legalAboutTitle": "Legal & About",
+  "legalTerms": "Terms",
+  "legalPrivacy": "Privacy",
+  "legalAbout": "About",
+  "legalTermsTitle": "Terms of service",
+  "legalPrivacyTitle": "Privacy policy",
+  "legalAboutScreenTitle": "About TaskFlow",
+  "legalBrowserHelper": "Open this page in your browser to view the latest published content.",
+  "legalOpenInBrowser": "Open in browser",
+  "legalOpenFailed": "Could not open this page in a browser.",
+  "accountTitle": "Account",
+  "sessionTitle": "Session",
+  "logOut": "Log out",
+  "changeProfilePhoto": "Change profile photo",
+  "uploadingPhoto": "Uploading photo…",
+  "profilePhotoUpdated": "Profile photo updated.",
+  "profilePhotoUploadFailed": "Could not upload profile photo.",
+  "calendarTitle": "Calendar",
+  "calendarNoTasksTitle": "No tasks on this day",
+  "calendarNoTasksMessage": "Pick another day or swipe to change the month.",
+  "calendarLoadError": "Could not load tasks for this month.",
+  "calendarOverdue": "Overdue",
+  "calendarDueAt": "Due {time}",
+  "@calendarDueAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarStartsAt": "Starts {time}",
+  "@calendarStartsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarTaskCount": "{count, plural, =0{No tasks} =1{1 task} other{{count} tasks}}",
+  "@calendarTaskCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "priorityLow": "Low",
+  "priorityMedium": "Medium",
+  "priorityHigh": "High",
+  "priorityUrgent": "Urgent",
+  "retry": "Try again",
+  "commentsTitle": "Comments",
+  "commentsEmptyTitle": "No comments yet",
+  "commentsEmptyMessage": "Ask a question or share an update with your supervisor.",
+  "commentsLoadFailed": "Could not load comments.",
+  "commentsLoadMore": "Load newer comments",
+  "commentsLoadMoreFailed": "Couldn't load more. Tap to retry",
+  "commentHint": "Write a comment…",
+  "commentSend": "Send comment",
+  "commentSendFailed": "Could not send your comment. Please try again.",
+  "commentYou": "You",
+  "commentRoleAdmin": "Admin",
+  "commentRoleManager": "Manager",
+  "timeJustNow": "Just now",
+  "timeMinutesAgo": "{count, plural, =1{1 min ago} other{{count} min ago}}",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeDaysAgo": "{count, plural, =1{Yesterday} other{{count} days ago}}",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsEmptyTitle": "You're all caught up",
+  "notificationsEmptyMessage": "Task updates, reminders and comments will appear here.",
+  "notificationsLoadError": "Could not load notifications.",
+  "notificationTaskUnavailable": "This task is no longer assigned to you.",
+  "notificationsUnreadLabel": "{count, plural, =1{Notifications, 1 unread} other{Notifications, {count} unread}}",
+  "@notificationsUnreadLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsGroupToday": "Today",
+  "notificationsGroupYesterday": "Yesterday",
+  "notificationsGroupEarlier": "Earlier",
+  "notificationsMarkAllRead": "Mark all as read",
+  "notificationsMarkAllReadFailed": "Could not mark notifications as read. Please try again.",
+  "homeGreetingMorning": "Good morning",
+  "homeGreetingAfternoon": "Good afternoon",
+  "homeGreetingEvening": "Good evening",
+  "homeHeadline": "Your day at a glance",
+  "homeDueTodayTitle": "Due today",
+  "homeDueTodayEmptyTitle": "Nothing due today",
+  "homeDueTodayEmptyMessage": "You have no unfinished tasks due today.",
+  "homeRecentTasksTitle": "Recent tasks",
+  "homeViewAll": "View all",
+  "errorTitle": "Something went wrong",
+  "errorTimeout": "Connection timed out. Please try again.",
+  "errorOffline": "No internet connection. Please check your network.",
+  "errorCertificate": "Secure connection failed.",
+  "errorCancelled": "Request cancelled.",
+  "photoTake": "Take a photo",
+  "photoChoose": "Choose from gallery",
+  "legalLoadFailed": "Unable to load this page. Check your connection and retry.",
+  "passwordHelpTitle": "Password help",
+  "passwordHelpHeading": "Password reset is not available in the app yet",
+  "passwordHelpBody": "Please contact your organization administrator for help accessing your account.",
+  "loginWelcomeBack": "Welcome back",
+  "loginSubtitle": "Sign in to continue to your workspace.",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "forgotPassword": "Forgot password?",
+  "kpiAssigned": "Assigned",
+  "kpiInProgress": "In progress",
+  "kpiDueToday": "Due today",
+  "kpiOverdue": "Overdue",
+  "kpiCompletedWeek": "Completed this week",
+  "profileTitle": "Profile",
+  "editProfileTitle": "Edit profile",
+  "profileLoadFailed": "Could not load profile.",
+  "fullName": "Full name",
+  "saveChanges": "Save changes",
+  "profileUpdateFailed": "Could not update profile.",
+  "changePassword": "Change password",
+  "changePasswordFailed": "Could not change password.",
+  "passwordChanged": "Password changed.",
+  "currentPassword": "Current password",
+  "cancel": "Cancel",
+  "save": "Save",
+  "taskActivity": "Task activity",
+  "activeTasks": "Active tasks",
+  "completedTasks": "Completed",
+  "completeTaskTitle": "Complete task",
+  "completeHeadline": "Wrap up your work",
+  "completeSubhead": "Review the checklist, add any optional evidence, then submit.",
+  "photoUploaded": "Photo uploaded successfully.",
+  "photoUploadFailed": "Could not upload the photo. Please try again.",
+  "filesUploadFailed": "Could not upload the selected files. Please try again.",
+  "filesSelectFailed": "Could not select or upload the files. Please try again.",
+  "completeRequiredFirst": "Complete the required items before submitting.",
+  "submitFailed": "Could not submit the task. Please try again.",
+  "completionSubmitted": "Task completion submitted.",
+  "tasksTitle": "Tasks",
+  "tasksSubhead": "Your assigned work, all in one place.",
+  "tasksEmptyTitle": "No tasks yet",
+  "tasksEmptyMessage": "Tasks assigned to you will show up here.",
+  "tasksNoMatchTitle": "No matching loaded tasks",
+  "tasksNoMatchMessage": "Try a different search or filter.",
+  "tasksRetryLoading": "Retry loading tasks",
+  "tasksLoadMore": "Load more",
+  "taskDetailsTitle": "Task details",
+  "noAttachments": "No attachments yet",
+  "attachmentOpenFailed": "Could not open this attachment.",
+  "requiredChecklist": "Required checklist",
+  "photosTitle": "Photos",
+  "filesTitle": "Files",
+  "notesTitle": "Notes",
+  "addPhoto": "Add photo",
+  "addFile": "Add file",
+  "notesHint": "Add a note about the completed work",
+  "submitCompletion": "Submit completion",
+  "waitForUploads": "Please wait for uploads to finish before submitting.",
+  "optional": "Optional",
+  "startTask": "Start task",
+  "dayToday": "Today",
+  "dayTomorrow": "Tomorrow",
+  "dayYesterday": "Yesterday",
+  "dueTomorrow": "Due tomorrow",
+  "dueAtTime": "Due {time}",
+  "@dueAtTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checklistTitle": "Checklist",
+  "taskInformation": "Task information",
+  "deadlineLabel": "Deadline",
+  "noDeadline": "No deadline",
+  "locationLabel": "Location",
+  "attachmentsTitle": "Attachments",
+  "completionNotes": "Completion notes",
+  "filterAll": "All",
+  "statusAssigned": "Assigned",
+  "statusInProgress": "In progress",
+  "statusCompleted": "Completed",
+  "statusOverdue": "Overdue",
+  "statusCancelled": "Cancelled",
+  "searchTasksHint": "Search tasks...",
+  "nameTooShort": "Enter a name with at least 2 characters.",
+  "overdueDays": "{days}d overdue",
+  "@overdueDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "splashErrorTitle": "Couldn't start the app",
+  "splashTagline": "Work. Assigned. Done.",
+  "loginTagline": "Manage your tasks, wherever you are",
+  "homeMyProgress": "My progress",
+  "homeThisWeek": "This week",
+  "homeThisWeekValue": "{done} of {total}",
+  "@homeThisWeekValue": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "homeThisWeekCaption": "completed",
+  "homeOnTimeRate": "On-time rate",
+  "homeOnTimeCaption": "finished before deadline",
+  "homePriorityBreakdown": "Priority breakdown",
+  "homeGreetingNamed": "{greeting}, {name}",
+  "@homeGreetingNamed": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "splashLoading": "Getting your workspace ready…",
+  "roleWorker": "Worker",
+  "profileActive": "Active",
+  "profileInactive": "Inactive",
+  "profilePreferences": "Preferences",
+  "profileSettingsSubtitle": "Appearance, legal and session"
+}

@@ -270,7 +270,7 @@
   },
   "homeThisWeekCaption": "completed",
   "homeOnTimeRate": "On-time rate",
-  "homeOnTimeCaption": "finished before deadline",
+  "homeOnTimeCaption": "deadlines met, last 30 days",
   "homePriorityBreakdown": "Priority breakdown",
   "homeGreetingNamed": "{greeting}, {name}",
   "@homeGreetingNamed": {

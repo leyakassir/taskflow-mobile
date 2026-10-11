@@ -679,7 +679,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeOnTimeRate => 'نسبة الالتزام بالموعد';
 
   @override
-  String get homeOnTimeCaption => 'أُنجزت قبل الموعد';
+  String get homeOnTimeCaption => 'مواعيد تم الالتزام بها، آخر 30 يومًا';
 
   @override
   String get homePriorityBreakdown => 'توزيع الأولويات';

@@ -677,7 +677,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeOnTimeRate => 'On-time rate';
 
   @override
-  String get homeOnTimeCaption => 'finished before deadline';
+  String get homeOnTimeCaption => 'deadlines met, last 30 days';
 
   @override
   String get homePriorityBreakdown => 'Priority breakdown';

@@ -4,6 +4,12 @@ import 'package:taskflow_mobile/core/constants/storage_keys.dart';
 import 'package:taskflow_mobile/core/storage/secure_storage_service.dart';
 import 'package:taskflow_mobile/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:taskflow_mobile/core/notifications/fcm_service.dart';
+import 'package:taskflow_mobile/features/calendar/providers/calendar_provider.dart';
+import 'package:taskflow_mobile/features/notifications/providers/notifications_provider.dart';
+import 'package:taskflow_mobile/features/profile/providers/profile_provider.dart';
+import 'package:taskflow_mobile/features/tasks/providers/task_comments_provider.dart';
+import 'package:taskflow_mobile/features/tasks/providers/task_details_provider.dart';
+import 'package:taskflow_mobile/features/tasks/providers/tasks_provider.dart';
 
 final authControllerProvider = AsyncNotifierProvider<AuthController, bool>(
   AuthController.new,
@@ -20,6 +26,7 @@ class AuthController extends AsyncNotifier<bool> {
   Future<void> login({required String email, required String password}) async {
     final repository = ref.read(authRepositoryProvider);
     await repository.login(email: email, password: password);
+    _clearUserData();
     state = const AsyncData(true);
     await ref.read(fcmServiceProvider).initializeForAuthenticatedUser();
   }
@@ -37,7 +44,26 @@ class AuthController extends AsyncNotifier<bool> {
   Future<void> signOut() async {
     final repository = ref.read(authRepositoryProvider);
     state = const AsyncLoading();
+    // Before the session token is cleared, so the request is authenticated.
+    await ref.read(fcmServiceProvider).unregisterForLogout();
     await repository.logout();
+    _clearUserData();
     state = const AsyncData(false);
+  }
+
+  /// Drops everything loaded for the previous account (tasks, profile,
+  /// calendar, task details, comments, notifications) so the next login
+  /// starts clean instead of showing the last user's data. Providers
+  /// rebuild from the API on next use. Add new per-user providers here.
+  void _clearUserData() {
+    ref
+      ..invalidate(tasksControllerProvider)
+      ..invalidate(tasksLoadingMoreProvider)
+      ..invalidate(tasksLoadMoreFailedProvider)
+      ..invalidate(profileControllerProvider)
+      ..invalidate(notificationsControllerProvider)
+      ..invalidate(calendarMonthTasksProvider)
+      ..invalidate(taskDetailsControllerProvider)
+      ..invalidate(taskCommentsControllerProvider);
   }
 }

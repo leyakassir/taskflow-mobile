@@ -197,7 +197,7 @@
   "homeThisWeekValue": "{done} من {total}",
   "homeThisWeekCaption": "مكتملة",
   "homeOnTimeRate": "نسبة الالتزام بالموعد",
-  "homeOnTimeCaption": "أُنجزت قبل الموعد",
+  "homeOnTimeCaption": "مواعيد تم الالتزام بها، آخر 30 يومًا",
   "homePriorityBreakdown": "توزيع الأولويات",
   "homeGreetingNamed": "{greeting}، {name}",
   "splashLoading": "جارٍ تجهيز مساحة عملك…",

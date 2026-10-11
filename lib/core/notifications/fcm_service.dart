@@ -77,6 +77,29 @@ class FcmService {
     }
   }
 
+  /// Called on logout while the session token is still valid: removes this
+  /// device's FCM token from the backend so it stops receiving the user's
+  /// pushes, then drops the local token so the next login gets a fresh one.
+  /// Best effort: logout must never fail because of this.
+  Future<void> unregisterForLogout() async {
+    await _tokenSubscription?.cancel();
+    _tokenSubscription = null;
+    if (Firebase.apps.isEmpty) return;
+    try {
+      final messaging = FirebaseMessaging.instance;
+      final token = await messaging.getToken();
+      if (token != null && token.isNotEmpty) {
+        await dio.delete<void>(
+          ApiConstants.myDeviceToken,
+          data: {'token': token},
+        );
+      }
+      await messaging.deleteToken();
+    } catch (error) {
+      debugPrint('Could not unregister FCM device token: $error');
+    }
+  }
+
   Future<void> _registerToken(String token) async {
     try {
       await dio.post<void>(ApiConstants.myDeviceToken, data: {'token': token});

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' show Color;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -14,7 +15,8 @@ class NotificationService {
     _onTap = onTap;
     if (_initialized) return;
     const settings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      // Single-color status-bar icon (the launcher icon shows as a square).
+      android: AndroidInitializationSettings('@drawable/ic_stat_taskflow'),
       iOS: DarwinInitializationSettings(),
     );
     await _plugin.initialize(
@@ -52,6 +54,7 @@ class NotificationService {
               'Notifications about assigned tasks and task progress.',
           importance: Importance.high,
           priority: Priority.high,
+          color: Color(0xFF5B6AF0),
         ),
         iOS: DarwinNotificationDetails(),
       ),

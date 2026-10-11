@@ -1289,7 +1289,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeOnTimeCaption.
   ///
   /// In en, this message translates to:
-  /// **'finished before deadline'**
+  /// **'deadlines met, last 30 days'**
   String get homeOnTimeCaption;
 
   /// No description provided for @homePriorityBreakdown.

@@ -1,11 +1,13 @@
 class ApiConstants {
   ApiConstants._();
 
-  /// Must be provided via: flutter run --dart-define=API_BASE_URL=http://...
-  /// Default is Android emulator loopback, for local dev convenience only.
+  /// Override with: `flutter run --dart-define=API_BASE_URL=http://PC_IP:3000`
+  /// The default is the dev PC's current Wi-Fi address (it changes when the
+  /// PC joins another network; check with `ipconfig`). Android emulator:
+  /// use http://10.0.2.2:3000.
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.10.226:3000',
+    defaultValue: 'http://192.168.0.101:3000',
   );
 
   static const Duration connectTimeout = Duration(seconds: 15);

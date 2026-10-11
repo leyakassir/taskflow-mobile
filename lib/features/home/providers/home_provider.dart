@@ -44,9 +44,14 @@ class HomeOverview {
   final int weekTotal;
   final int weekCompleted;
 
-  /// Share of completed tasks (with a deadline) finished before it, 0..1.
-  /// Null when no completed task has a deadline yet.
+  /// Share of deadlines met in the last [onTimeWindow], 0..1: tasks
+  /// submitted on or before their deadline, out of every task whose
+  /// deadline passed in the window or that was completed in it. A task
+  /// still open past its deadline counts as missed, so overdue work lowers
+  /// the rate. Null when nothing qualifies.
   final double? onTimeRate;
+
+  static const onTimeWindow = Duration(days: 30);
 
   /// Counts over all loaded tasks; urgent is counted as high.
   final int highPriorityCount;
@@ -104,26 +109,19 @@ class HomeOverview {
     final weekTasks = tasks
         .where((task) => !task.createdAt.toLocal().isBefore(weekStart))
         .toList();
-    final completedWithDeadline = tasks
+    final judged = tasks
         .where(
-          (task) =>
-              task.status == TaskStatus.completed &&
-              task.deadline != null &&
-              task.completionTimestamp != null,
+          (task) => _judgedForOnTime(task, now.subtract(onTimeWindow), now),
         )
         .toList();
-    final onTime = completedWithDeadline
-        .where((task) => !task.completionTimestamp!.isAfter(task.deadline!))
-        .length;
+    final onTime = judged.where(_finishedOnTime).length;
 
     return HomeOverview(
       weekTotal: weekTasks.length,
       weekCompleted: weekTasks
           .where((task) => task.status == TaskStatus.completed)
           .length,
-      onTimeRate: completedWithDeadline.isEmpty
-          ? null
-          : onTime / completedWithDeadline.length,
+      onTimeRate: judged.isEmpty ? null : onTime / judged.length,
       highPriorityCount: tasks
           .where(
             (task) =>
@@ -166,6 +164,26 @@ class HomeOverview {
       recentTasks: recentTasks,
     );
   }
+
+  /// A task is judged once its outcome is known: it was completed in the
+  /// window, or its deadline passed in the window (finished or not).
+  /// Cancelled tasks, tasks without a deadline and open tasks that are not
+  /// due yet are left out.
+  static bool _judgedForOnTime(Task task, DateTime from, DateTime now) {
+    final deadline = task.deadline;
+    if (deadline == null || task.status == TaskStatus.cancelled) return false;
+    final completedAt = task.completionTimestamp;
+    if (task.status == TaskStatus.completed && completedAt != null) {
+      return completedAt.isAfter(from) ||
+          (deadline.isAfter(from) && !deadline.isAfter(now));
+    }
+    return deadline.isAfter(from) && !deadline.isAfter(now);
+  }
+
+  static bool _finishedOnTime(Task task) =>
+      task.status == TaskStatus.completed &&
+      task.completionTimestamp != null &&
+      !task.completionTimestamp!.isAfter(task.deadline!);
 
   static bool _isActive(Task task) =>
       task.status != TaskStatus.completed &&

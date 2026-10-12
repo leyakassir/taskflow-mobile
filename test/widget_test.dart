@@ -28,10 +28,15 @@ void main() {
     await tester.pump(); // let the router build
     expect(find.byType(SplashScreen), findsOneWidget);
 
-    // The splash stays up for its minimum duration, then moves on.
-    await tester.pump(SplashScreen.minimumDuration);
+    // Still the splash after 5 s on a first launch...
+    await tester.pump(const Duration(seconds: 5));
+    expect(find.byType(SplashScreen), findsOneWidget);
+    expect(find.byType(OnboardingScreen), findsNothing);
+
+    // ...and onboarding once the 6 s minimum has passed.
+    await tester.pump(const Duration(seconds: 2));
     await tester.pump(const Duration(seconds: 1));
-    await tester.pump(const Duration(seconds: 1));
+    expect(SplashScreen.minimumDuration, const Duration(seconds: 6));
     expect(find.byType(OnboardingScreen), findsOneWidget);
   });
 }

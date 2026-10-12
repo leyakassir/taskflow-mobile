@@ -16,9 +16,9 @@ import 'package:taskflow_mobile/l10n/gen/app_localizations.dart';
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
-  /// The splash stays up at least this long, counted from when it is first
-  /// shown (also on first launch, when there is no session to check).
-  static const minimumDuration = Duration(seconds: 5);
+  /// The splash stays up at least this long, counted from its first frame
+  /// on screen (also on first launch, when there is no session to check).
+  static const minimumDuration = Duration(seconds: 6);
 
   @override
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
@@ -28,7 +28,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     with TickerProviderStateMixin {
   ProviderSubscription<AsyncValue<String>>? _sub;
   bool _navigated = false;
-  final _shownAt = Stopwatch()..start();
+
+  /// Started on the first frame actually drawn, not when this widget is
+  /// created: on a first launch that frame can take a few seconds (fonts,
+  /// shaders), which would otherwise eat into the visible time.
+  final _shownAt = Stopwatch();
 
   late final AnimationController _introController;
   late final AnimationController _ambientController;
@@ -41,6 +45,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _shownAt.start());
 
     _introController = AnimationController(
       vsync: this,

@@ -226,5 +226,6 @@
   "completionSavedOffline": "تم الحفظ. سيتم إرسال المهمة عند عودة الاتصال.",
   "logoutPendingTitle": "تغييرات لم تتم مزامنتها",
   "logoutPendingMessage": "{count} من التغييرات لم تصل إلى الخادم بعد. إذا سجّلت الخروج الآن فستفقدها.",
-  "logoutAnyway": "تسجيل الخروج على أي حال"
+  "logoutAnyway": "تسجيل الخروج على أي حال",
+  "legalReload": "إعادة التحميل"
 }

@@ -330,5 +330,6 @@
       }
     }
   },
-  "logoutAnyway": "Log out anyway"
+  "logoutAnyway": "Log out anyway",
+  "legalReload": "Reload"
 }

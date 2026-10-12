@@ -15,6 +15,7 @@ import 'package:taskflow_mobile/core/widgets/empty_state.dart';
 import 'package:taskflow_mobile/core/widgets/error_view.dart';
 import 'package:taskflow_mobile/features/calendar/domain/entities/calendar_entry.dart';
 import 'package:taskflow_mobile/features/calendar/widgets/calendar_task_tile.dart';
+import 'package:taskflow_mobile/features/about/widgets/web_page_title.dart';
 import 'package:taskflow_mobile/features/auth/screens/login_screen.dart';
 import 'package:taskflow_mobile/features/home/providers/home_provider.dart';
 import 'package:taskflow_mobile/features/home/widgets/my_progress_section.dart';
@@ -196,6 +197,21 @@ void main() {
       ],
     ),
     'ErrorView': const SizedBox(height: 600, child: ErrorView(onRetry: _noop)),
+    'WebPageTitle in AppBar': SizedBox(
+      height: 80,
+      child: AppBar(
+        title: WebPageTitle(
+          title: 'Terms & Conditions with a long title',
+          url: Uri.parse(
+            'http://192.168.10.226:3000/legal/page?slug=terms&lang=en',
+          ),
+        ),
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.refresh)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.open_in_browser)),
+        ],
+      ),
+    ),
     'TopKpiCarousel': TopKpiCarousel(
       overview: HomeOverview.fromTasks([
         _task(),

@@ -777,4 +777,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logoutAnyway => 'Log out anyway';
+
+  @override
+  String get legalReload => 'Reload';
 }

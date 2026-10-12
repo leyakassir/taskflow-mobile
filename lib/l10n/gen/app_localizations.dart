@@ -1465,6 +1465,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log out anyway'**
   String get logoutAnyway;
+
+  /// No description provided for @legalReload.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload'**
+  String get legalReload;
 }
 
 class _AppLocalizationsDelegate

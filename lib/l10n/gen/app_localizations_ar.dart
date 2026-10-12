@@ -778,4 +778,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get logoutAnyway => 'تسجيل الخروج على أي حال';
+
+  @override
+  String get legalReload => 'إعادة التحميل';
 }

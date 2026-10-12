@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taskflow_mobile/features/tasks/data/models/task_submission_model.dart';
 import 'package:taskflow_mobile/features/tasks/data/repositories/task_repository_impl.dart';
 import 'package:taskflow_mobile/features/tasks/domain/entities/task.dart';
+import 'package:taskflow_mobile/features/tasks/domain/repositories/task_repository.dart';
 import 'package:taskflow_mobile/features/tasks/providers/tasks_provider.dart';
 
 final taskDetailsControllerProvider =
@@ -47,11 +48,11 @@ class TaskDetailsController extends FamilyAsyncNotifier<Task, String> {
     _syncIntoTaskList(updated);
   }
 
-  Future<Map<String, dynamic>> uploadAttachment({
+  Future<AttachmentUploadResult> uploadAttachment({
     required String filePath,
     required String kind,
   }) {
-    final task = state.value;
+    final task = state.valueOrNull;
     if (task == null) {
       throw StateError('Task details must load before uploading attachments.');
     }
@@ -65,7 +66,7 @@ class TaskDetailsController extends FamilyAsyncNotifier<Task, String> {
   /// a full network re-fetch of the whole list.
   void _syncIntoTaskList(Task updated) {
     final tasksState = ref.read(tasksControllerProvider);
-    final tasks = tasksState.value;
+    final tasks = tasksState.valueOrNull;
     if (tasks == null) return;
     ref.read(tasksControllerProvider.notifier).state = AsyncData([
       for (final task in tasks)

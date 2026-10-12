@@ -52,7 +52,7 @@ class TaskModel extends Task {
       titleAr: json['titleAr'] as String?,
       descriptionAr: json['descriptionAr'] as String?,
       priority: _priorityFromJson(json['priority'] as String?),
-      status: _statusFromJson(json['status'] as String?),
+      status: taskStatusFromJson(json['status'] as String?),
       deadline: _dateFromJson(json['deadline'] as String?),
       startDate: _dateFromJson(json['startDate'] as String?),
       location: json['location'] as String?,
@@ -93,7 +93,7 @@ TaskPriority _priorityFromJson(String? value) {
   }
 }
 
-TaskStatus _statusFromJson(String? value) {
+TaskStatus taskStatusFromJson(String? value) {
   switch (value) {
     case 'IN_PROGRESS':
       return TaskStatus.inProgress;
@@ -133,3 +133,53 @@ class TaskPageModel extends TaskPage {
     totalPages: (json['totalPages'] as num?)?.toInt() ?? 0,
   );
 }
+
+/// Serializes a task in the API's JSON shape, for the offline cache.
+Map<String, dynamic> taskToJson(Task task) => {
+  'id': task.id,
+  'title': task.title,
+  'description': task.description,
+  'titleAr': task.titleAr,
+  'descriptionAr': task.descriptionAr,
+  'priority': priorityToJson(task.priority),
+  'status': taskStatusToJson(task.status),
+  'deadline': task.deadline?.toUtc().toIso8601String(),
+  'startDate': task.startDate?.toUtc().toIso8601String(),
+  'location': task.location,
+  'minPhotosRequired': task.minPhotosRequired,
+  'minFilesRequired': task.minFilesRequired,
+  'requiresChecklist': task.requiresChecklist,
+  'assigneeId': task.assigneeId,
+  'createdById': task.createdById,
+  'checklistItems': [
+    for (final item in task.checklistItems)
+      {
+        'id': item.id,
+        'taskId': item.taskId,
+        'label': item.label,
+        'done': item.done,
+      },
+  ],
+  'attachments': [
+    for (final attachment in task.attachments) attachmentToJson(attachment),
+  ],
+  'completionNotes': task.completionNotes,
+  'completionTimestamp': task.completionTimestamp?.toUtc().toIso8601String(),
+  'createdAt': task.createdAt.toUtc().toIso8601String(),
+  'updatedAt': task.updatedAt.toUtc().toIso8601String(),
+};
+
+String priorityToJson(TaskPriority priority) => switch (priority) {
+  TaskPriority.low => 'LOW',
+  TaskPriority.medium => 'MEDIUM',
+  TaskPriority.high => 'HIGH',
+  TaskPriority.urgent => 'URGENT',
+};
+
+String taskStatusToJson(TaskStatus status) => switch (status) {
+  TaskStatus.assigned => 'ASSIGNED',
+  TaskStatus.inProgress => 'IN_PROGRESS',
+  TaskStatus.completed => 'COMPLETED',
+  TaskStatus.overdue => 'OVERDUE',
+  TaskStatus.cancelled => 'CANCELLED',
+};

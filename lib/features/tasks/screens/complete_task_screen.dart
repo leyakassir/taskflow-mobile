@@ -1,6 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow_mobile/core/offline/sync_queue.dart';
+import 'package:taskflow_mobile/features/tasks/domain/repositories/task_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -136,7 +138,7 @@ class _CompleteTaskScreenState extends ConsumerState<CompleteTaskScreen> {
         _isUploading = true;
         _uploadingName = 'photo:${pickedImage.name}';
       });
-      await ref
+      final result = await ref
           .read(taskDetailsControllerProvider(widget.taskId).notifier)
           .uploadAttachment(filePath: pickedImage.path, kind: 'PHOTO');
       if (!mounted) return;
@@ -152,7 +154,11 @@ class _CompleteTaskScreenState extends ConsumerState<CompleteTaskScreen> {
           ),
         );
       });
-      _showMessage(AppLocalizations.of(context).photoUploaded);
+      _showMessage(
+        result == AttachmentUploadResult.queued
+            ? AppLocalizations.of(context).photoSavedOffline
+            : AppLocalizations.of(context).photoUploaded,
+      );
     } catch (error, stackTrace) {
       debugPrint('Photo selection or upload failed: $error\n$stackTrace');
       if (!mounted) return;
@@ -186,6 +192,7 @@ class _CompleteTaskScreenState extends ConsumerState<CompleteTaskScreen> {
 
       final uploadedFiles = <AttachmentInput>[];
       var failedUploads = 0;
+      var queuedFiles = false;
 
       for (final file in files) {
         final path = file.path;
@@ -203,9 +210,10 @@ class _CompleteTaskScreenState extends ConsumerState<CompleteTaskScreen> {
               _uploadingName = 'file:${file.name}';
             });
           }
-          await ref
+          final result = await ref
               .read(taskDetailsControllerProvider(widget.taskId).notifier)
               .uploadAttachment(filePath: path, kind: 'FILE');
+          if (result == AttachmentUploadResult.queued) queuedFiles = true;
           uploadedFiles.add(
             AttachmentInput(
               // Local path is only a display label; it is never submitted.
@@ -229,6 +237,10 @@ class _CompleteTaskScreenState extends ConsumerState<CompleteTaskScreen> {
       }
 
       setState(() => _pendingFiles.addAll(uploadedFiles));
+      if (queuedFiles) {
+        _showMessage(AppLocalizations.of(context).filesSavedOffline);
+        return;
+      }
       _showMessage(
         failedUploads == 0
             ? '${uploadedFiles.length} file(s) uploaded successfully.'
@@ -294,7 +306,13 @@ class _CompleteTaskScreenState extends ConsumerState<CompleteTaskScreen> {
       if (!mounted) return;
 
       final messenger = ScaffoldMessenger.of(context);
-      final completionSnackBar = _completionSnackBar(context);
+      final savedOffline = ref
+          .read(pendingTaskIdsProvider)
+          .contains(widget.taskId);
+      final completionSnackBar = _completionSnackBar(
+        context,
+        savedOffline: savedOffline,
+      );
       context.pop();
       messenger.showSnackBar(completionSnackBar);
     } catch (error, stackTrace) {
@@ -308,7 +326,10 @@ class _CompleteTaskScreenState extends ConsumerState<CompleteTaskScreen> {
     }
   }
 
-  SnackBar _completionSnackBar(BuildContext context) {
+  SnackBar _completionSnackBar(
+    BuildContext context, {
+    required bool savedOffline,
+  }) {
     final colorScheme = Theme.of(context).colorScheme;
     return SnackBar(
       behavior: SnackBarBehavior.floating,
@@ -318,7 +339,11 @@ class _CompleteTaskScreenState extends ConsumerState<CompleteTaskScreen> {
           Icon(Icons.check_circle_rounded, color: colorScheme.inversePrimary),
           const SizedBox(width: AppDimensions.space3),
           Expanded(
-            child: Text(AppLocalizations.of(context).completionSubmitted),
+            child: Text(
+              savedOffline
+                  ? AppLocalizations.of(context).completionSavedOffline
+                  : AppLocalizations.of(context).completionSubmitted,
+            ),
           ),
         ],
       ),

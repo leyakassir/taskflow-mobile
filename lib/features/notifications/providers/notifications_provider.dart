@@ -15,7 +15,7 @@ final notificationsControllerProvider =
 /// Unread count for the bell badge. Updates whenever the list changes:
 /// on load, refresh, a foreground push, or marking items read.
 final unreadNotificationCountProvider = Provider<int>((ref) {
-  final notifications = ref.watch(notificationsControllerProvider).value;
+  final notifications = ref.watch(notificationsControllerProvider).valueOrNull;
   return notifications?.where((n) => !n.isRead).length ?? 0;
 });
 
@@ -35,7 +35,7 @@ class NotificationsController extends AsyncNotifier<List<AppNotification>> {
   /// Marks a notification read locally right away, then on the server.
   /// Failures are logged only: opening the task matters more.
   Future<void> markRead(String notificationId) async {
-    final current = state.value;
+    final current = state.valueOrNull;
     if (current != null) {
       final now = DateTime.now();
       state = AsyncData([
@@ -53,7 +53,7 @@ class NotificationsController extends AsyncNotifier<List<AppNotification>> {
   /// Marks everything read locally, then on the server. Restores the
   /// previous list and rethrows if the server call fails.
   Future<void> markAllRead() async {
-    final previous = state.value;
+    final previous = state.valueOrNull;
     if (previous == null) return;
     final now = DateTime.now();
     state = AsyncData([for (final n in previous) n.markedRead(now)]);

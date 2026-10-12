@@ -19,7 +19,7 @@ class CalendarScreen extends ConsumerWidget {
     final month = ref.watch(calendarFocusedMonthProvider);
     final selectedDay = ref.watch(calendarSelectedDayProvider);
     final entriesAsync = ref.watch(calendarEntriesProvider);
-    final entriesByDay = entriesAsync.value ?? const {};
+    final entriesByDay = entriesAsync.valueOrNull ?? const {};
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.calendarTitle)),

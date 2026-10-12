@@ -25,7 +25,7 @@ class TaskCommentsSection extends ConsumerWidget {
     final controller = ref.read(
       taskCommentsControllerProvider(taskId).notifier,
     );
-    final currentUserId = ref.watch(profileControllerProvider).value?.id;
+    final currentUserId = ref.watch(profileControllerProvider).valueOrNull?.id;
 
     return Container(
       width: double.infinity,

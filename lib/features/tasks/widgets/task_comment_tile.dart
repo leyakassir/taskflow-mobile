@@ -61,12 +61,31 @@ class TaskCommentTile extends StatelessWidget {
                       ),
                     ),
                     if (isStaff) _RoleBadge(role: comment.author.role),
-                    Text(
-                      relativeTimeLabel(comment.createdAt, l10n),
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                    if (comment.isPending)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.schedule_rounded,
+                            size: 14,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: AppDimensions.space1),
+                          Text(
+                            l10n.commentPending,
+                            style: AppTextStyles.labelMedium.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Text(
+                        relativeTimeLabel(comment.createdAt, l10n),
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: AppDimensions.space1),

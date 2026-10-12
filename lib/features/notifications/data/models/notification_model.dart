@@ -53,3 +53,27 @@ NotificationKind notificationKindFromJson(String? value) {
       return NotificationKind.generic;
   }
 }
+
+Map<String, dynamic> notificationToJson(AppNotification n) => {
+  'id': n.id,
+  'kind': notificationKindToJson(n.kind),
+  'title': n.title,
+  'body': n.body,
+  'taskId': n.taskId,
+  'readAt': n.readAt?.toUtc().toIso8601String(),
+  'createdAt': n.createdAt.toUtc().toIso8601String(),
+};
+
+String notificationKindToJson(NotificationKind kind) => switch (kind) {
+  NotificationKind.taskAssigned => 'TASK_ASSIGNED',
+  NotificationKind.taskReassigned => 'TASK_REASSIGNED',
+  NotificationKind.taskUnassigned => 'TASK_UNASSIGNED',
+  NotificationKind.taskDueSoon => 'TASK_DUE_SOON',
+  NotificationKind.taskOverdue => 'TASK_OVERDUE',
+  NotificationKind.taskCancelled => 'TASK_CANCELLED',
+  NotificationKind.taskUpdated => 'TASK_UPDATED',
+  NotificationKind.taskSubmitted => 'TASK_SUBMITTED',
+  NotificationKind.taskComment => 'TASK_COMMENT',
+  NotificationKind.dailySummary => 'DAILY_SUMMARY',
+  NotificationKind.generic => 'GENERIC',
+};

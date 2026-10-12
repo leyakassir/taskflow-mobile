@@ -26,6 +26,10 @@ class ApiException implements Exception {
   bool get isNotFound => statusCode == 404;
   bool get isServerError => (statusCode ?? 0) >= 500;
 
+  /// The request never reached the server, so it is safe to queue it and
+  /// send it again later.
+  bool get isOffline => kind == ApiErrorKind.offline;
+
   @override
   String toString() => message;
 }

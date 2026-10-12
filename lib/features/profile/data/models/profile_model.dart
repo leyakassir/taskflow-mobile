@@ -19,3 +19,12 @@ class ProfileModel extends Profile {
     avatarUrl: json['avatarUrl'] as String?,
   );
 }
+
+Map<String, dynamic> profileToJson(Profile p) => {
+  'id': p.id,
+  'email': p.email,
+  'fullName': p.fullName,
+  'role': p.role,
+  'isActive': p.isActive,
+  'avatarUrl': p.avatarUrl,
+};

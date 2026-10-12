@@ -5,6 +5,7 @@ import 'package:taskflow_mobile/app/theme/app_text_styles.dart';
 import 'package:taskflow_mobile/features/tasks/domain/entities/task.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_priority_badge.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_status_chip.dart';
+import 'package:taskflow_mobile/features/tasks/widgets/pending_sync_badge.dart';
 
 /// Top card of the task details screen: status, priority, title and
 /// description.
@@ -34,6 +35,7 @@ class TaskDetailsHero extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 TaskStatusChip(status: task.status, prominent: true),
+                PendingSyncBadge(taskId: task.id),
                 TaskPriorityBadge(priority: task.priority),
               ],
             ),

@@ -69,7 +69,7 @@ class TaskCommentsController
 
   /// Loads the next (newer) page and appends it.
   Future<void> loadMore() async {
-    final current = state.value;
+    final current = state.valueOrNull;
     if (current == null || !current.hasMore || current.loadingMore) return;
     state = AsyncData(
       current.copyWith(loadingMore: true, loadMoreFailed: false),
@@ -99,7 +99,7 @@ class TaskCommentsController
     final comment = await ref
         .read(taskCommentRepositoryProvider)
         .addComment(arg, body);
-    final current = state.value;
+    final current = state.valueOrNull;
     if (current == null) {
       state = AsyncData(
         TaskCommentsState(comments: [comment], page: 1, totalPages: 1),

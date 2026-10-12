@@ -9,6 +9,7 @@ import 'package:taskflow_mobile/features/tasks/domain/entities/task.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_priority_badge.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_progress_indicator.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_status_chip.dart';
+import 'package:taskflow_mobile/features/tasks/widgets/pending_sync_badge.dart';
 import 'package:taskflow_mobile/l10n/gen/app_localizations.dart';
 
 /// The primary task list item, shown on the Tasks screen and Home
@@ -94,6 +95,7 @@ class TaskCard extends StatelessWidget {
                         runSpacing: AppDimensions.space2,
                         children: [
                           TaskStatusChip(status: task.status),
+                          PendingSyncBadge(taskId: task.id),
                           if (task.deadline != null)
                             Row(
                               mainAxisSize: MainAxisSize.min,

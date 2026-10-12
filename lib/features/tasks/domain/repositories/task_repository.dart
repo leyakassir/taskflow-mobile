@@ -1,10 +1,16 @@
 import 'package:taskflow_mobile/features/tasks/data/models/task_submission_model.dart';
 import 'package:taskflow_mobile/features/tasks/domain/entities/task.dart';
 
+/// Whether a picked photo/file reached the server or is waiting offline.
+enum AttachmentUploadResult { uploaded, queued }
+
 abstract class TaskRepository {
   /// Returns tasks visible to the current user — the backend enforces that
   /// workers only ever receive tasks assigned to them.
   Future<TaskPage> getTasks({int page = 1, int limit = 20});
+
+  /// Downloads every visible task and replaces the offline copy with it.
+  Future<void> refreshAllTasks();
 
   /// Returns every visible task whose deadline or start date falls within
   /// [from]..[to] (inclusive), following pagination until all pages load.
@@ -25,7 +31,7 @@ abstract class TaskRepository {
   /// all required evidence (photos, files, checklist) is present.
   Future<Task> completeTask(String taskId, TaskSubmissionModel submission);
 
-  Future<Map<String, dynamic>> uploadAttachment({
+  Future<AttachmentUploadResult> uploadAttachment({
     required String taskId,
     required String filePath,
     required String kind,

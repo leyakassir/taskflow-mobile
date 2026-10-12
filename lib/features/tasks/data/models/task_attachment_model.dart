@@ -37,3 +37,17 @@ TaskAttachmentKind _kindFromJson(String? value) {
       return TaskAttachmentKind.instruction;
   }
 }
+
+Map<String, dynamic> attachmentToJson(TaskAttachment attachment) => {
+  'id': attachment.id,
+  'taskId': attachment.taskId,
+  'kind': switch (attachment.kind) {
+    TaskAttachmentKind.instruction => 'INSTRUCTION',
+    TaskAttachmentKind.completionPhoto => 'COMPLETION_PHOTO',
+    TaskAttachmentKind.completionFile => 'COMPLETION_FILE',
+  },
+  'url': attachment.url,
+  'mimeType': attachment.mimeType,
+  'sizeBytes': attachment.sizeBytes,
+  'createdAt': attachment.createdAt.toUtc().toIso8601String(),
+};

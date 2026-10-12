@@ -7,6 +7,7 @@ class TaskCommentModel extends TaskComment {
     required super.body,
     required super.createdAt,
     required super.author,
+    super.isPending,
   });
 
   factory TaskCommentModel.fromJson(Map<String, dynamic> json) {
@@ -44,3 +45,16 @@ class TaskCommentPageModel extends TaskCommentPage {
         totalPages: (json['totalPages'] as num?)?.toInt() ?? 0,
       );
 }
+
+Map<String, dynamic> commentToJson(TaskComment comment) => {
+  'id': comment.id,
+  'taskId': comment.taskId,
+  'body': comment.body,
+  'createdAt': comment.createdAt.toUtc().toIso8601String(),
+  'author': {
+    'id': comment.author.id,
+    'fullName': comment.author.fullName,
+    'role': comment.author.role,
+    'avatarUrl': comment.author.avatarUrl,
+  },
+};

@@ -11,6 +11,35 @@ class TaskSubmissionModel {
     this.files,
   });
 
+  /// Reads a submission saved in the offline queue.
+  factory TaskSubmissionModel.fromJson(Map<String, dynamic> json) {
+    List<AttachmentInput>? attachments(Object? raw) => raw is List
+        ? [
+            for (final a in raw.whereType<Map<String, dynamic>>())
+              AttachmentInput(
+                url: a['url'] as String? ?? '',
+                mimeType: a['mimeType'] as String? ?? '',
+                sizeBytes: (a['sizeBytes'] as num?)?.toInt() ?? 0,
+              ),
+          ]
+        : null;
+    final checklist = json['checklistResults'];
+    return TaskSubmissionModel(
+      notes: json['notes'] as String?,
+      checklistResults: checklist is List
+          ? [
+              for (final r in checklist.whereType<Map<String, dynamic>>())
+                ChecklistResultInput(
+                  id: r['id']?.toString() ?? '',
+                  done: r['done'] == true,
+                ),
+            ]
+          : null,
+      photos: attachments(json['photos']),
+      files: attachments(json['files']),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       if (notes != null) 'notes': notes,

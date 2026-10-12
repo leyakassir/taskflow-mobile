@@ -6,9 +6,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:taskflow_mobile/app/theme/app_colors.dart';
 import 'package:taskflow_mobile/app/theme/app_theme.dart';
+import 'package:taskflow_mobile/core/storage/local_storage_service.dart';
 import 'package:taskflow_mobile/core/widgets/empty_state.dart';
 import 'package:taskflow_mobile/core/widgets/error_view.dart';
 import 'package:taskflow_mobile/features/calendar/domain/entities/calendar_entry.dart';
@@ -61,7 +63,12 @@ Task _task({
 
 Widget _host(Widget child, {required Locale locale, required bool dark}) {
   return ProviderScope(
-    overrides: [unreadNotificationCountProvider.overrideWithValue(128)],
+    overrides: [
+      unreadNotificationCountProvider.overrideWithValue(128),
+      // The offline queue (read by the "Waiting to sync" badge) lives in
+      // SharedPreferences, which the real app provides in main().
+      sharedPreferencesProvider.overrideWithValue(_prefs),
+    ],
     child: MaterialApp(
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
@@ -89,9 +96,15 @@ Widget _host(Widget child, {required Locale locale, required bool dark}) {
   );
 }
 
+late SharedPreferences _prefs;
+
 void main() {
   // No network in tests: render with the test font instead of fetching Inter.
   GoogleFonts.config.allowRuntimeFetching = false;
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    _prefs = await SharedPreferences.getInstance();
+  });
 
   final now = DateTime.now();
   final widgets = <String, Widget>{

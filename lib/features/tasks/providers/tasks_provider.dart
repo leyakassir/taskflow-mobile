@@ -39,8 +39,23 @@ class TasksController extends AsyncNotifier<List<Task>> {
     });
   }
 
+  /// Reloads the first page without showing a loading state; on failure
+  /// the current list stays. Used after a background sync.
+  Future<void> reloadQuietly() async {
+    try {
+      final result = await ref
+          .read(taskRepositoryProvider)
+          .getTasks(page: 1, limit: _pageSize);
+      _page = result.page;
+      _totalPages = result.totalPages;
+      state = AsyncData(result.tasks);
+    } catch (_) {
+      // Keep showing what we have.
+    }
+  }
+
   Future<void> loadNextPage() async {
-    final current = state.value;
+    final current = state.valueOrNull;
     if (current == null ||
         _page >= _totalPages ||
         ref.read(tasksLoadingMoreProvider)) {
@@ -73,7 +88,7 @@ class TasksController extends AsyncNotifier<List<Task>> {
   }
 
   void _replaceTask(Task updated) {
-    final current = state.value;
+    final current = state.valueOrNull;
     if (current == null) return;
     state = AsyncData([
       for (final task in current)

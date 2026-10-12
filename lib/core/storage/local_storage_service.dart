@@ -24,4 +24,6 @@ class LocalStorageService {
       _prefs.setString(key, value);
 
   Future<void> remove(String key) => _prefs.remove(key);
+
+  Set<String> keys() => _prefs.getKeys();
 }

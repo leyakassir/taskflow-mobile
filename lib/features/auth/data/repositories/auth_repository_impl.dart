@@ -42,6 +42,9 @@ class AuthRepositoryImpl implements AuthRepository {
       // Only a rejected token ends the session. A network failure or a
       // server error says nothing about the token, so it is passed on and
       // the splash screen shows it.
+      // No connection: keep the saved session and start in offline mode
+      // with the cached data. The server re-checks the token once online.
+      if (error.isOffline) return true;
       if (!error.isUnauthorized && !error.isForbidden) rethrow;
       try {
         await _secureStorage.delete(StorageKeys.accessToken);

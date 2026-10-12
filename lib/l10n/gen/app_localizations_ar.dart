@@ -659,7 +659,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get splashTagline => 'عمل. إسناد. إنجاز.';
 
   @override
-  String get loginTagline => 'أدِر مهامك أينما كنت';
+  String get loginTagline => 'مهامك، أينما كان العمل.';
 
   @override
   String get homeMyProgress => 'تقدّمي';
@@ -793,4 +793,75 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tasksLoading => 'جارٍ التحميل…';
+
+  @override
+  String get loginSecureNote => 'تسجيل دخول آمن لفريقك';
+
+  @override
+  String get loginLanguageToggle => 'English';
+
+  @override
+  String get forgotTitle => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get forgotSubtitle =>
+      'أدخل البريد الإلكتروني الذي تسجّل الدخول به، وسنرسل إليك رمزًا من 6 أرقام.';
+
+  @override
+  String get forgotSendCode => 'إرسال الرمز';
+
+  @override
+  String get forgotBackToLogin => 'العودة لتسجيل الدخول';
+
+  @override
+  String get resetTitle => 'أدخل الرمز';
+
+  @override
+  String resetSubtitle(String email) {
+    return 'أرسلنا رمزًا من 6 أرقام إلى $email. تنتهي صلاحيته خلال 10 دقائق.';
+  }
+
+  @override
+  String get resetCodeLabel => 'رمز من 6 أرقام';
+
+  @override
+  String get resetNewPassword => 'كلمة المرور الجديدة (8 أحرف أو أكثر)';
+
+  @override
+  String get resetConfirmPassword => 'تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get resetSubmit => 'تعيين كلمة المرور';
+
+  @override
+  String get resetResend => 'إعادة إرسال الرمز';
+
+  @override
+  String resetResendIn(int seconds) {
+    return 'إعادة الإرسال بعد $seconds ث';
+  }
+
+  @override
+  String get resetCodeSent =>
+      'إذا كان لهذا البريد حساب، فسيصل رمز جديد قريبًا.';
+
+  @override
+  String get resetCodeInvalid => 'أدخل الرمز المكوّن من 6 أرقام من البريد.';
+
+  @override
+  String get resetCodeWrong =>
+      'الرمز غير صحيح أو انتهت صلاحيته. تحقق منه أو اطلب رمزًا جديدًا.';
+
+  @override
+  String get resetPasswordShort => 'استخدم 8 أحرف على الأقل.';
+
+  @override
+  String get resetPasswordMismatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get resetDone =>
+      'تم تغيير كلمة المرور. سجّل الدخول بكلمة المرور الجديدة.';
+
+  @override
+  String get resetCheckSpam => 'لم تجده؟ تحقق من مجلد البريد غير المرغوب فيه.';
 }

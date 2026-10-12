@@ -657,7 +657,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get splashTagline => 'Work. Assigned. Done.';
 
   @override
-  String get loginTagline => 'Manage your tasks, wherever you are';
+  String get loginTagline => 'Your tasks, wherever the work is.';
 
   @override
   String get homeMyProgress => 'My progress';
@@ -793,4 +793,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tasksLoading => 'Loading…';
+
+  @override
+  String get loginSecureNote => 'Secured sign-in for your team';
+
+  @override
+  String get loginLanguageToggle => 'العربية';
+
+  @override
+  String get forgotTitle => 'Reset your password';
+
+  @override
+  String get forgotSubtitle =>
+      'Enter the email you sign in with. We\'ll send you a 6-digit code.';
+
+  @override
+  String get forgotSendCode => 'Send code';
+
+  @override
+  String get forgotBackToLogin => 'Back to sign in';
+
+  @override
+  String get resetTitle => 'Enter the code';
+
+  @override
+  String resetSubtitle(String email) {
+    return 'We sent a 6-digit code to $email. It expires in 10 minutes.';
+  }
+
+  @override
+  String get resetCodeLabel => '6-digit code';
+
+  @override
+  String get resetNewPassword => 'New password (8+ characters)';
+
+  @override
+  String get resetConfirmPassword => 'Confirm new password';
+
+  @override
+  String get resetSubmit => 'Set new password';
+
+  @override
+  String get resetResend => 'Resend code';
+
+  @override
+  String resetResendIn(int seconds) {
+    return 'Resend code in ${seconds}s';
+  }
+
+  @override
+  String get resetCodeSent =>
+      'If that email has an account, a new code is on its way.';
+
+  @override
+  String get resetCodeInvalid => 'Enter the 6-digit code from the email.';
+
+  @override
+  String get resetCodeWrong =>
+      'That code is wrong or has expired. Check it or request a new one.';
+
+  @override
+  String get resetPasswordShort => 'Use at least 8 characters.';
+
+  @override
+  String get resetPasswordMismatch => 'The passwords don\'t match.';
+
+  @override
+  String get resetDone => 'Password changed. Sign in with your new password.';
+
+  @override
+  String get resetCheckSpam => 'Can\'t find it? Check your spam folder.';
 }

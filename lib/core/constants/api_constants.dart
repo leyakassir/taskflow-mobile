@@ -20,6 +20,8 @@ class ApiConstants {
   static const String events = '/events';
 
   static const String login = '/auth/login';
+  static const String forgotPassword = '/auth/forgot-password';
+  static const String resetPassword = '/auth/reset-password';
   static const String me = '/auth/me';
   static const String myProfile = '/me';
   static const String myPassword = '/me/password';

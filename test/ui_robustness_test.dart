@@ -16,7 +16,9 @@ import 'package:taskflow_mobile/core/widgets/error_view.dart';
 import 'package:taskflow_mobile/features/calendar/domain/entities/calendar_entry.dart';
 import 'package:taskflow_mobile/features/calendar/widgets/calendar_task_tile.dart';
 import 'package:taskflow_mobile/features/about/widgets/web_page_title.dart';
+import 'package:taskflow_mobile/features/auth/screens/forgot_password_screen.dart';
 import 'package:taskflow_mobile/features/auth/screens/login_screen.dart';
+import 'package:taskflow_mobile/features/auth/screens/reset_password_screen.dart';
 import 'package:taskflow_mobile/features/home/providers/home_provider.dart';
 import 'package:taskflow_mobile/features/home/widgets/my_progress_section.dart';
 import 'package:taskflow_mobile/features/home/widgets/stats_card.dart';
@@ -258,6 +260,7 @@ void main() {
         addTearDown(tester.view.reset);
         await tester.pumpWidget(
           ProviderScope(
+            overrides: [sharedPreferencesProvider.overrideWithValue(_prefs)],
             child: MaterialApp(
               theme: AppTheme.light,
               darkTheme: AppTheme.dark,
@@ -276,6 +279,77 @@ void main() {
                 child: app!,
               ),
               home: const LoginScreen(),
+            ),
+          ),
+        );
+        // The background animates forever, so wait a fixed time.
+        await tester.pump(const Duration(seconds: 1));
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('ForgotPasswordScreen fits 360dp @1.3x ($variant)', (
+        tester,
+      ) async {
+        tester.view.physicalSize = const Size(360, 640);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [sharedPreferencesProvider.overrideWithValue(_prefs)],
+            child: MaterialApp(
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+              locale: locale,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+              ],
+              builder: (context, app) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(1.3)),
+                child: app!,
+              ),
+              home: const ForgotPasswordScreen(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('ResetPasswordScreen fits 360dp @1.3x ($variant)', (
+        tester,
+      ) async {
+        tester.view.physicalSize = const Size(360, 640);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [sharedPreferencesProvider.overrideWithValue(_prefs)],
+            child: MaterialApp(
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+              locale: locale,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+              ],
+              builder: (context, app) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(1.3)),
+                child: app!,
+              ),
+              home: const ResetPasswordScreen(
+                email: 'very.long.worker.email@taskflow.local',
+              ),
             ),
           ),
         );

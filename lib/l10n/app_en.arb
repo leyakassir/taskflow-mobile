@@ -254,7 +254,7 @@
   },
   "splashErrorTitle": "Couldn't start the app",
   "splashTagline": "Work. Assigned. Done.",
-  "loginTagline": "Manage your tasks, wherever you are",
+  "loginTagline": "Your tasks, wherever the work is.",
   "homeMyProgress": "My progress",
   "homeThisWeek": "This week",
   "homeThisWeekValue": "{done} of {total}",
@@ -335,5 +335,40 @@
   "profileUpdated": "Name updated.",
   "passwordsTooShort": "Both passwords must be at least 8 characters.",
   "newPasswordLabel": "New password (8+ characters)",
-  "tasksLoading": "Loading…"
+  "tasksLoading": "Loading…",
+  "loginSecureNote": "Secured sign-in for your team",
+  "loginLanguageToggle": "العربية",
+  "forgotTitle": "Reset your password",
+  "forgotSubtitle": "Enter the email you sign in with. We'll send you a 6-digit code.",
+  "forgotSendCode": "Send code",
+  "forgotBackToLogin": "Back to sign in",
+  "resetTitle": "Enter the code",
+  "resetSubtitle": "We sent a 6-digit code to {email}. It expires in 10 minutes.",
+  "@resetSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "resetCodeLabel": "6-digit code",
+  "resetNewPassword": "New password (8+ characters)",
+  "resetConfirmPassword": "Confirm new password",
+  "resetSubmit": "Set new password",
+  "resetResend": "Resend code",
+  "resetResendIn": "Resend code in {seconds}s",
+  "@resetResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "resetCodeSent": "If that email has an account, a new code is on its way.",
+  "resetCodeInvalid": "Enter the 6-digit code from the email.",
+  "resetCodeWrong": "That code is wrong or has expired. Check it or request a new one.",
+  "resetPasswordShort": "Use at least 8 characters.",
+  "resetPasswordMismatch": "The passwords don't match.",
+  "resetDone": "Password changed. Sign in with your new password.",
+  "resetCheckSpam": "Can't find it? Check your spam folder."
 }

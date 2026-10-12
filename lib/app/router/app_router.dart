@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:taskflow_mobile/app/router/route_names.dart';
 import 'package:taskflow_mobile/features/auth/screens/login_screen.dart';
 import 'package:taskflow_mobile/features/auth/screens/forgot_password_screen.dart';
+import 'package:taskflow_mobile/features/auth/screens/reset_password_screen.dart';
 import 'package:taskflow_mobile/features/auth/providers/auth_provider.dart';
 import 'package:taskflow_mobile/features/calendar/screens/calendar_screen.dart';
 import 'package:taskflow_mobile/features/home/screens/home_screen.dart';
@@ -62,6 +63,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.forgotPassword,
         builder: (context, state) => const ForgotPasswordScreen(),
+        routes: [
+          GoRoute(
+            path: 'reset',
+            builder: (context, state) =>
+                ResetPasswordScreen(email: state.extra as String? ?? ''),
+          ),
+        ],
       ),
 
       StatefulShellRoute.indexedStack(

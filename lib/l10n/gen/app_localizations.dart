@@ -1253,7 +1253,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginTagline.
   ///
   /// In en, this message translates to:
-  /// **'Manage your tasks, wherever you are'**
+  /// **'Your tasks, wherever the work is.'**
   String get loginTagline;
 
   /// No description provided for @homeMyProgress.
@@ -1495,6 +1495,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading…'**
   String get tasksLoading;
+
+  /// No description provided for @loginSecureNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Secured sign-in for your team'**
+  String get loginSecureNote;
+
+  /// No description provided for @loginLanguageToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'العربية'**
+  String get loginLanguageToggle;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get forgotTitle;
+
+  /// No description provided for @forgotSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the email you sign in with. We\'ll send you a 6-digit code.'**
+  String get forgotSubtitle;
+
+  /// No description provided for @forgotSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get forgotSendCode;
+
+  /// No description provided for @forgotBackToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get forgotBackToLogin;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get resetTitle;
+
+  /// No description provided for @resetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {email}. It expires in 10 minutes.'**
+  String resetSubtitle(String email);
+
+  /// No description provided for @resetCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get resetCodeLabel;
+
+  /// No description provided for @resetNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password (8+ characters)'**
+  String get resetNewPassword;
+
+  /// No description provided for @resetConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get resetConfirmPassword;
+
+  /// No description provided for @resetSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get resetSubmit;
+
+  /// No description provided for @resetResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get resetResend;
+
+  /// No description provided for @resetResendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in {seconds}s'**
+  String resetResendIn(int seconds);
+
+  /// No description provided for @resetCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If that email has an account, a new code is on its way.'**
+  String get resetCodeSent;
+
+  /// No description provided for @resetCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code from the email.'**
+  String get resetCodeInvalid;
+
+  /// No description provided for @resetCodeWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is wrong or has expired. Check it or request a new one.'**
+  String get resetCodeWrong;
+
+  /// No description provided for @resetPasswordShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 8 characters.'**
+  String get resetPasswordShort;
+
+  /// No description provided for @resetPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The passwords don\'t match.'**
+  String get resetPasswordMismatch;
+
+  /// No description provided for @resetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. Sign in with your new password.'**
+  String get resetDone;
+
+  /// No description provided for @resetCheckSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t find it? Check your spam folder.'**
+  String get resetCheckSpam;
 }
 
 class _AppLocalizationsDelegate

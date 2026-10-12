@@ -864,4 +864,47 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get resetCheckSpam => 'لم تجده؟ تحقق من مجلد البريد غير المرغوب فيه.';
+
+  @override
+  String get signupLink => 'جديد في TaskFlow؟ اطلب حسابًا';
+
+  @override
+  String get signupTitle => 'طلب حساب';
+
+  @override
+  String get signupSubtitle =>
+      'عرّفنا بنفسك. سنرسل رمزًا إلى بريدك لتأكيده، ثم يراجع المسؤول طلبك.';
+
+  @override
+  String get signupHaveAccount => 'لدي حساب بالفعل';
+
+  @override
+  String signupVerifySubtitle(String email) {
+    return 'أرسلنا رمزًا من 6 أرقام إلى $email. أدخله لإرسال طلبك إلى المسؤول.';
+  }
+
+  @override
+  String get signupSendRequest => 'تأكيد وإرسال الطلب';
+
+  @override
+  String get signupSentTitle => 'تم إرسال الطلب';
+
+  @override
+  String signupSentMessage(String email) {
+    return 'سيراجع المسؤول طلبك، وسنراسل $email عندما يصبح حسابك جاهزًا.';
+  }
+
+  @override
+  String get signupNotSentTitle => 'لم يتم إرسال الطلب';
+
+  @override
+  String get signupNotSentCode =>
+      'الرمز غير صحيح أو انتهت صلاحيته، لذلك تعذّر إرسال طلبك. حاول مرة أخرى أو اطلب رمزًا جديدًا.';
+
+  @override
+  String get signupNotSentExists =>
+      'يوجد حساب بهذا البريد بالفعل، لذلك لم يُرسل الطلب. سجّل الدخول بدلًا من ذلك.';
+
+  @override
+  String get signupTryAgain => 'حاول مرة أخرى';
 }

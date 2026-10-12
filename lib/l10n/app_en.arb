@@ -370,5 +370,31 @@
   "resetPasswordShort": "Use at least 8 characters.",
   "resetPasswordMismatch": "The passwords don't match.",
   "resetDone": "Password changed. Sign in with your new password.",
-  "resetCheckSpam": "Can't find it? Check your spam folder."
+  "resetCheckSpam": "Can't find it? Check your spam folder.",
+  "signupLink": "New to TaskFlow? Request an account",
+  "signupTitle": "Request an account",
+  "signupSubtitle": "Tell us who you are. We'll email you a code to confirm your address, then an administrator reviews your request.",
+  "signupHaveAccount": "I already have an account",
+  "signupVerifySubtitle": "We sent a 6-digit code to {email}. Enter it to send your request to an administrator.",
+  "@signupVerifySubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "signupSendRequest": "Verify and send request",
+  "signupSentTitle": "Request sent",
+  "signupSentMessage": "An administrator will review your request. We'll email {email} when your account is ready.",
+  "@signupSentMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "signupNotSentTitle": "Request not sent",
+  "signupNotSentCode": "The code is wrong or has expired, so your request couldn't be sent. Try again or request a new code.",
+  "signupNotSentExists": "An account with this email already exists, so no request was sent. Sign in instead.",
+  "signupTryAgain": "Try again"
 }

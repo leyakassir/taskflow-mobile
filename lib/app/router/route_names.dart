@@ -20,6 +20,11 @@ class RouteNames {
   static String legalPath(String slug) => '/app/profile/legal/$slug';
   static const forgotPassword = '/forgot-password';
 
+  /// "Request an account". Step 2 (code) gets the entered details as
+  /// `extra` (a SignupDraft).
+  static const signupRequest = '/request-account';
+  static const signupVerify = '/request-account/verify';
+
   /// Second step of "Forgot password": enter the emailed code. The email is
   /// passed as the route's `extra`.
   static const resetPassword = '/forgot-password/reset';

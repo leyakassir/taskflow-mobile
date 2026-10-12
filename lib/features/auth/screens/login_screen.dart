@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:taskflow_mobile/app/router/route_names.dart';
 import 'package:taskflow_mobile/app/theme/app_dimensions.dart';
 import 'package:taskflow_mobile/app/theme/app_text_styles.dart';
 import 'package:taskflow_mobile/features/auth/widgets/auth_background.dart';
@@ -146,8 +148,20 @@ class LoginScreen extends StatelessWidget {
                                             height: AppDimensions.space6,
                                           ),
                                           const LoginForm(),
+                                          Center(
+                                            child: TextButton.icon(
+                                              onPressed: () => context.push(
+                                                RouteNames.signupRequest,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.person_add_alt_1_rounded,
+                                                size: 18,
+                                              ),
+                                              label: Text(l10n.signupLink),
+                                            ),
+                                          ),
                                           const SizedBox(
-                                            height: AppDimensions.space4,
+                                            height: AppDimensions.space2,
                                           ),
                                           Row(
                                             mainAxisAlignment:

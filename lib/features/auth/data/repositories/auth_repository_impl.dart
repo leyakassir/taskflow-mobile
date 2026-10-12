@@ -56,6 +56,23 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> requestSignup({
+    required String fullName,
+    required String email,
+    required String password,
+    required String languageCode,
+  }) => _remoteDataSource.requestSignup(
+    fullName: fullName.trim(),
+    email: email.trim(),
+    password: password,
+    languageCode: languageCode,
+  );
+
+  @override
+  Future<void> verifySignup({required String email, required String code}) =>
+      _remoteDataSource.verifySignup(email: email.trim(), code: code.trim());
+
+  @override
   Future<void> requestPasswordReset({
     required String email,
     required String languageCode,

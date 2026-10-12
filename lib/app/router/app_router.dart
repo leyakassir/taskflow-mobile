@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:taskflow_mobile/app/router/route_names.dart';
 import 'package:taskflow_mobile/features/auth/screens/login_screen.dart';
 import 'package:taskflow_mobile/features/auth/screens/forgot_password_screen.dart';
+import 'package:taskflow_mobile/features/auth/providers/signup_request_provider.dart';
+import 'package:taskflow_mobile/features/auth/screens/signup_request_screen.dart';
+import 'package:taskflow_mobile/features/auth/screens/signup_verify_screen.dart';
 import 'package:taskflow_mobile/features/auth/screens/reset_password_screen.dart';
 import 'package:taskflow_mobile/features/auth/providers/auth_provider.dart';
 import 'package:taskflow_mobile/features/calendar/screens/calendar_screen.dart';
@@ -59,6 +62,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.login,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.signupRequest,
+        builder: (context, state) => const SignupRequestScreen(),
+        routes: [
+          GoRoute(
+            path: 'verify',
+            builder: (context, state) =>
+                SignupVerifyScreen(draft: state.extra! as SignupDraft),
+          ),
+        ],
       ),
       GoRoute(
         path: RouteNames.forgotPassword,

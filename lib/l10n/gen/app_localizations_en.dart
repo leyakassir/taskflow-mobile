@@ -863,4 +863,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetCheckSpam => 'Can\'t find it? Check your spam folder.';
+
+  @override
+  String get signupLink => 'New to TaskFlow? Request an account';
+
+  @override
+  String get signupTitle => 'Request an account';
+
+  @override
+  String get signupSubtitle =>
+      'Tell us who you are. We\'ll email you a code to confirm your address, then an administrator reviews your request.';
+
+  @override
+  String get signupHaveAccount => 'I already have an account';
+
+  @override
+  String signupVerifySubtitle(String email) {
+    return 'We sent a 6-digit code to $email. Enter it to send your request to an administrator.';
+  }
+
+  @override
+  String get signupSendRequest => 'Verify and send request';
+
+  @override
+  String get signupSentTitle => 'Request sent';
+
+  @override
+  String signupSentMessage(String email) {
+    return 'An administrator will review your request. We\'ll email $email when your account is ready.';
+  }
+
+  @override
+  String get signupNotSentTitle => 'Request not sent';
+
+  @override
+  String get signupNotSentCode =>
+      'The code is wrong or has expired, so your request couldn\'t be sent. Try again or request a new code.';
+
+  @override
+  String get signupNotSentExists =>
+      'An account with this email already exists, so no request was sent. Sign in instead.';
+
+  @override
+  String get signupTryAgain => 'Try again';
 }

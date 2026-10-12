@@ -49,6 +49,47 @@ class AuthRemoteDataSource {
     }
   }
 
+  /// "Request an account", step 1: emails a 6-digit code. The server
+  /// answers the same whether or not the email already has an account.
+  Future<void> requestSignup({
+    required String fullName,
+    required String email,
+    required String password,
+    required String languageCode,
+  }) async {
+    try {
+      await _dio.post<void>(
+        ApiConstants.signupRequests,
+        data: {
+          'fullName': fullName,
+          'email': email,
+          'password': password,
+          'lang': languageCode == 'ar' ? 'ar' : 'en',
+        },
+      );
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw const ApiException.generic();
+    }
+  }
+
+  /// Step 2: a correct code sends the request to the admins. A wrong or
+  /// expired code is a 400 and nothing is sent.
+  Future<void> verifySignup({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      await _dio.post<void>(
+        ApiConstants.signupRequestsVerify,
+        data: {'email': email, 'code': code},
+      );
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw const ApiException.generic();
+    }
+  }
+
   Future<LoginResponseModel> login({
     required String email,
     required String password,

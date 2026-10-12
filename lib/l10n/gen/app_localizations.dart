@@ -1621,6 +1621,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Can\'t find it? Check your spam folder.'**
   String get resetCheckSpam;
+
+  /// No description provided for @signupLink.
+  ///
+  /// In en, this message translates to:
+  /// **'New to TaskFlow? Request an account'**
+  String get signupLink;
+
+  /// No description provided for @signupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request an account'**
+  String get signupTitle;
+
+  /// No description provided for @signupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us who you are. We\'ll email you a code to confirm your address, then an administrator reviews your request.'**
+  String get signupSubtitle;
+
+  /// No description provided for @signupHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have an account'**
+  String get signupHaveAccount;
+
+  /// No description provided for @signupVerifySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {email}. Enter it to send your request to an administrator.'**
+  String signupVerifySubtitle(String email);
+
+  /// No description provided for @signupSendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify and send request'**
+  String get signupSendRequest;
+
+  /// No description provided for @signupSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent'**
+  String get signupSentTitle;
+
+  /// No description provided for @signupSentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'An administrator will review your request. We\'ll email {email} when your account is ready.'**
+  String signupSentMessage(String email);
+
+  /// No description provided for @signupNotSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request not sent'**
+  String get signupNotSentTitle;
+
+  /// No description provided for @signupNotSentCode.
+  ///
+  /// In en, this message translates to:
+  /// **'The code is wrong or has expired, so your request couldn\'t be sent. Try again or request a new code.'**
+  String get signupNotSentCode;
+
+  /// No description provided for @signupNotSentExists.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email already exists, so no request was sent. Sign in instead.'**
+  String get signupNotSentExists;
+
+  /// No description provided for @signupTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get signupTryAgain;
 }
 
 class _AppLocalizationsDelegate

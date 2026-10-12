@@ -16,6 +16,9 @@ class ApiConstants {
   /// Public, cheap endpoint used to check whether the server is reachable.
   static const String configLocales = '/config/locales';
 
+  /// Server-Sent Events stream of live change notices.
+  static const String events = '/events';
+
   static const String login = '/auth/login';
   static const String me = '/auth/me';
   static const String myProfile = '/me';

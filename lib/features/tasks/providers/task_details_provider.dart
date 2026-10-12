@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:taskflow_mobile/core/network/api_exceptions.dart';
+
 import 'package:taskflow_mobile/features/tasks/data/models/task_submission_model.dart';
 import 'package:taskflow_mobile/features/tasks/data/repositories/task_repository_impl.dart';
 import 'package:taskflow_mobile/features/tasks/domain/entities/task.dart';
@@ -31,7 +33,11 @@ class TaskDetailsController extends FamilyAsyncNotifier<Task, String> {
   Future<void> reload() async {
     final repository = ref.read(taskRepositoryProvider);
     final next = await AsyncValue.guard(() => repository.getTaskById(arg));
-    if (next.hasValue || !state.hasValue) state = next;
+    final gone =
+        next.error is ApiException &&
+        ((next.error! as ApiException).isForbidden ||
+            (next.error! as ApiException).isNotFound);
+    if (next.hasValue || !state.hasValue || gone) state = next;
   }
 
   Future<void> updateStatus(TaskStatus status) async {

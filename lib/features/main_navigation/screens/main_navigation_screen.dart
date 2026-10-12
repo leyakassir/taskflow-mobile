@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:taskflow_mobile/features/realtime/providers/realtime_provider.dart';
 import 'package:taskflow_mobile/features/sync/widgets/sync_status_bar.dart';
 import 'package:taskflow_mobile/l10n/gen/app_localizations.dart';
 
 /// Bottom navigation for the shell. Destinations must stay in the same
 /// order as the StatefulShellRoute branches in app_router.dart:
 /// Home, Tasks, Calendar, Profile.
-class MainNavigationScreen extends StatelessWidget {
+class MainNavigationScreen extends ConsumerWidget {
   const MainNavigationScreen({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Live updates while the app is open (connection only, no UI).
+    ref.watch(realtimeProvider);
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: navigationShell,

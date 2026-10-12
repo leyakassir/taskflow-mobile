@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Shown by Android before Flutter draws its first frame: brand indigo, the
-     same color the splash gradient starts from, so there is no white flash. -->
+<!-- Shown by Android until Flutter draws its first frame. It is the splash
+     screen's own background (same diagonal gradient, no logo), so the hand
+     over to the app's splash is invisible. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/launch_background" />
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="315"
+                android:startColor="#7C8BFF"
+                android:centerColor="#5B6AF0"
+                android:endColor="#4A58D4"
+                android:type="linear" />
+        </shape>
+    </item>
 </layer-list>

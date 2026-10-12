@@ -1,24 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:taskflow_mobile/app/app.dart';
+import 'package:taskflow_mobile/core/notifications/firebase_bootstrap.dart';
 import 'package:taskflow_mobile/core/storage/local_storage_service.dart';
-import 'package:taskflow_mobile/core/notifications/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    await Firebase.initializeApp();
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  } catch (error) {
-    debugPrint(
-      'Firebase is not configured; push notifications are disabled: $error',
-    );
-  }
+  // Firebase starts in the background so the splash draws immediately
+  // (push setup waits for it, see FirebaseBootstrap).
+  unawaited(FirebaseBootstrap.ensureInitialized());
 
   final prefs = await SharedPreferences.getInstance();
 

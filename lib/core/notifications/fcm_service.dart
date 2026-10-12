@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +10,7 @@ import 'package:taskflow_mobile/app/router/app_router.dart';
 import 'package:taskflow_mobile/app/router/route_names.dart';
 import 'package:taskflow_mobile/core/constants/api_constants.dart';
 import 'package:taskflow_mobile/core/network/dio_client.dart';
+import 'package:taskflow_mobile/core/notifications/firebase_bootstrap.dart';
 import 'package:taskflow_mobile/core/notifications/notification_service.dart';
 import 'package:taskflow_mobile/features/notifications/providers/notifications_provider.dart';
 
@@ -45,7 +45,7 @@ class FcmService {
   Future<void> initializeForAuthenticatedUser() async {
     // A new session must not show the previous user's notifications.
     ref.invalidate(notificationsControllerProvider);
-    if (Firebase.apps.isEmpty) return;
+    if (!await FirebaseBootstrap.ensureInitialized()) return;
     try {
       await notifications.initialize(onTap: _handlePayload);
       final messaging = FirebaseMessaging.instance;
@@ -84,7 +84,7 @@ class FcmService {
   Future<void> unregisterForLogout() async {
     await _tokenSubscription?.cancel();
     _tokenSubscription = null;
-    if (Firebase.apps.isEmpty) return;
+    if (!await FirebaseBootstrap.ensureInitialized()) return;
     try {
       final messaging = FirebaseMessaging.instance;
       final token = await messaging.getToken();

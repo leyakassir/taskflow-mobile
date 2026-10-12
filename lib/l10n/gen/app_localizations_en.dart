@@ -790,4 +790,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newPasswordLabel => 'New password (8+ characters)';
+
+  @override
+  String get tasksLoading => 'Loading…';
 }

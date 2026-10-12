@@ -1489,6 +1489,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New password (8+ characters)'**
   String get newPasswordLabel;
+
+  /// No description provided for @tasksLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get tasksLoading;
 }
 
 class _AppLocalizationsDelegate

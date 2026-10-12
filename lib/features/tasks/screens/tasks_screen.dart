@@ -171,7 +171,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                                         .loadNextPage(),
                               child: Text(
                                 loadingMore
-                                    ? 'Loading…'
+                                    ? AppLocalizations.of(context).tasksLoading
                                     : loadMoreFailed
                                     ? AppLocalizations.of(context)
                                           .tasksRetryLoading

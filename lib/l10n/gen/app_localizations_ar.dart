@@ -790,4 +790,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get newPasswordLabel => 'كلمة المرور الجديدة (8 أحرف أو أكثر)';
+
+  @override
+  String get tasksLoading => 'جارٍ التحميل…';
 }

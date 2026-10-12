@@ -230,5 +230,6 @@
   "legalReload": "إعادة التحميل",
   "profileUpdated": "تم تحديث الاسم.",
   "passwordsTooShort": "يجب ألا تقل كلمتا المرور عن 8 أحرف.",
-  "newPasswordLabel": "كلمة المرور الجديدة (8 أحرف أو أكثر)"
+  "newPasswordLabel": "كلمة المرور الجديدة (8 أحرف أو أكثر)",
+  "tasksLoading": "جارٍ التحميل…"
 }

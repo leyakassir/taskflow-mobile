@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,6 +28,19 @@ void main() {
     );
     await tester.pump(); // let the router build
     expect(find.byType(SplashScreen), findsOneWidget);
+
+    // The first frame already shows the brand at full opacity, so a slow
+    // start never looks like a blank purple screen.
+    final name = find.text('TaskFlow');
+    expect(name, findsOneWidget);
+    final fades = tester.widgetList<FadeTransition>(
+      find.ancestor(of: name, matching: find.byType(FadeTransition)),
+    );
+    expect(fades.every((f) => f.opacity.value == 1), isTrue);
+    final opacities = tester.widgetList<Opacity>(
+      find.ancestor(of: name, matching: find.byType(Opacity)),
+    );
+    expect(opacities.every((o) => o.opacity == 1), isTrue);
 
     // Still the splash after 5 s on a first launch...
     await tester.pump(const Duration(seconds: 5));

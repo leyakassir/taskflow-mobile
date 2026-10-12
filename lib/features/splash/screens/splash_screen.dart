@@ -60,25 +60,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       duration: const Duration(milliseconds: 1600),
     )..repeat(reverse: true);
 
-    _logoScale = Tween<double>(begin: 0.6, end: 1).animate(
+    // The very first frame already shows the logo, name and tagline at
+    // full opacity; the intro only settles them into place. On a slow first
+    // launch (debug builds especially) the phone can hold that first frame
+    // for seconds, and a fade-in from transparent would show plain purple.
+    _logoScale = Tween<double>(begin: 0.92, end: 1).animate(
       CurvedAnimation(
         parent: _introController,
-        curve: const Interval(0, 0.6, curve: Curves.elasticOut),
+        curve: const Interval(0, 0.6, curve: Curves.easeOutBack),
       ),
     );
-    _logoFade = CurvedAnimation(
-      parent: _introController,
-      curve: const Interval(0, 0.35, curve: Curves.easeOut),
-    );
-    _textFade = CurvedAnimation(
-      parent: _introController,
-      curve: const Interval(0.35, 0.8, curve: Curves.easeOut),
-    );
-    _textSlide = Tween<Offset>(begin: const Offset(0, 0.4), end: Offset.zero)
+    _logoFade = const AlwaysStoppedAnimation(1);
+    _textFade = const AlwaysStoppedAnimation(1);
+    _textSlide = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero)
         .animate(
           CurvedAnimation(
             parent: _introController,
-            curve: const Interval(0.35, 0.9, curve: Curves.easeOutCubic),
+            curve: const Interval(0.1, 0.7, curve: Curves.easeOutCubic),
           ),
         );
 

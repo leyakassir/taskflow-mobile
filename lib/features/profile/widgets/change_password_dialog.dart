@@ -33,7 +33,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
 
   Future<void> _save() async {
     if (_current.text.length < 8 || _next.text.length < 8) {
-      _message('Both passwords must be at least 8 characters.');
+      _message(AppLocalizations.of(context).passwordsTooShort);
       return;
     }
     setState(() => _saving = true);
@@ -75,8 +75,8 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             TextField(
               controller: _next,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'New password (8+ characters)',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context).newPasswordLabel,
               ),
             ),
           ],

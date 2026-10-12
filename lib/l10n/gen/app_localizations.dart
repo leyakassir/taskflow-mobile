@@ -1471,6 +1471,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reload'**
   String get legalReload;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Name updated.'**
+  String get profileUpdated;
+
+  /// No description provided for @passwordsTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Both passwords must be at least 8 characters.'**
+  String get passwordsTooShort;
+
+  /// No description provided for @newPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password (8+ characters)'**
+  String get newPasswordLabel;
 }
 
 class _AppLocalizationsDelegate

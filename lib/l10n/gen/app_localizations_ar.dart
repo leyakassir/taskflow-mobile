@@ -781,4 +781,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get legalReload => 'إعادة التحميل';
+
+  @override
+  String get profileUpdated => 'تم تحديث الاسم.';
+
+  @override
+  String get passwordsTooShort => 'يجب ألا تقل كلمتا المرور عن 8 أحرف.';
+
+  @override
+  String get newPasswordLabel => 'كلمة المرور الجديدة (8 أحرف أو أكثر)';
 }

@@ -331,5 +331,8 @@
     }
   },
   "logoutAnyway": "Log out anyway",
-  "legalReload": "Reload"
+  "legalReload": "Reload",
+  "profileUpdated": "Name updated.",
+  "passwordsTooShort": "Both passwords must be at least 8 characters.",
+  "newPasswordLabel": "New password (8+ characters)"
 }

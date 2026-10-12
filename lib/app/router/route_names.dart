@@ -17,7 +17,6 @@ class RouteNames {
   static const dueToday = '/app/home/due-today';
   static const settings = '/app/profile/settings';
   static const language = '/app/profile/settings/language';
-  static const profileEdit = '/app/profile/edit';
   static String legalPath(String slug) => '/app/profile/legal/$slug';
   static const forgotPassword = '/forgot-password';
 

@@ -18,6 +18,7 @@ import 'package:taskflow_mobile/core/widgets/photo_source_sheet.dart';
 import 'package:taskflow_mobile/features/auth/providers/auth_provider.dart';
 import 'package:taskflow_mobile/features/profile/providers/profile_provider.dart';
 import 'package:taskflow_mobile/features/profile/widgets/change_password_dialog.dart';
+import 'package:taskflow_mobile/features/profile/widgets/edit_name_dialog.dart';
 import 'package:taskflow_mobile/features/profile/widgets/profile_header.dart';
 import 'package:taskflow_mobile/features/profile/widgets/profile_header_skeleton.dart';
 import 'package:taskflow_mobile/features/profile/widgets/profile_menu_item.dart';
@@ -62,7 +63,7 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 ProfileHeader(
                   profile: value,
-                  onEditTap: () => context.push(RouteNames.profileEdit),
+                  onEditTap: () => _editName(context, value.fullName),
                   onPhotoTap: () => _changeProfilePhoto(context, ref),
                 ),
                 Padding(
@@ -82,7 +83,7 @@ class ProfileScreen extends ConsumerWidget {
                             icon: Icons.person_outline_rounded,
                             title: l10n.editProfileTitle,
                             subtitle: value.fullName,
-                            onTap: () => context.push(RouteNames.profileEdit),
+                            onTap: () => _editName(context, value.fullName),
                           ),
                           ProfileMenuItem(
                             icon: Icons.photo_camera_outlined,
@@ -166,6 +167,18 @@ class ProfileScreen extends ConsumerWidget {
                 : l10n.profilePhotoUploadFailed,
           ),
         ),
+      );
+    }
+  }
+
+  Future<void> _editName(BuildContext context, String currentName) async {
+    final changed = await showDialog<bool>(
+      context: context,
+      builder: (_) => EditNameDialog(currentName: currentName),
+    );
+    if (changed == true && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).profileUpdated)),
       );
     }
   }

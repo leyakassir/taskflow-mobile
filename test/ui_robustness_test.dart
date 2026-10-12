@@ -28,6 +28,7 @@ import 'package:taskflow_mobile/features/notifications/domain/entities/notificat
 import 'package:taskflow_mobile/features/notifications/providers/notifications_provider.dart';
 import 'package:taskflow_mobile/features/notifications/widgets/notification_card.dart';
 import 'package:taskflow_mobile/features/profile/domain/entities/profile.dart';
+import 'package:taskflow_mobile/features/profile/widgets/edit_name_dialog.dart';
 import 'package:taskflow_mobile/features/profile/widgets/profile_header.dart';
 import 'package:taskflow_mobile/features/profile/widgets/profile_stat_card.dart';
 import 'package:taskflow_mobile/features/tasks/domain/entities/task.dart';
@@ -197,6 +198,9 @@ void main() {
       ],
     ),
     'ErrorView': const SizedBox(height: 600, child: ErrorView(onRetry: _noop)),
+    'EditNameDialog': const EditNameDialog(
+      currentName: 'Demo Worker With A Very Long Full Name',
+    ),
     'WebPageTitle in AppBar': SizedBox(
       height: 80,
       child: AppBar(

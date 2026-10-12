@@ -780,4 +780,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get legalReload => 'Reload';
+
+  @override
+  String get profileUpdated => 'Name updated.';
+
+  @override
+  String get passwordsTooShort =>
+      'Both passwords must be at least 8 characters.';
+
+  @override
+  String get newPasswordLabel => 'New password (8+ characters)';
 }

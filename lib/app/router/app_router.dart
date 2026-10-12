@@ -13,7 +13,6 @@ import 'package:taskflow_mobile/features/home/screens/due_today_screen.dart';
 import 'package:taskflow_mobile/features/notifications/screens/notifications_screen.dart';
 import 'package:taskflow_mobile/features/onboarding/screens/onboarding_screen.dart';
 import 'package:taskflow_mobile/features/profile/screens/profile_screen.dart';
-import 'package:taskflow_mobile/features/profile/screens/edit_profile_screen.dart';
 import 'package:taskflow_mobile/features/about/widgets/legal_webview_screen.dart';
 import 'package:taskflow_mobile/features/settings/screens/settings_screen.dart';
 import 'package:taskflow_mobile/features/settings/screens/language_screen.dart';
@@ -127,10 +126,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 path: RouteNames.profile,
                 builder: (context, state) => const ProfileScreen(),
                 routes: [
-                  GoRoute(
-                    path: 'edit',
-                    builder: (context, state) => const EditProfileScreen(),
-                  ),
                   GoRoute(
                     path: 'settings',
                     builder: (context, state) => const SettingsScreen(),

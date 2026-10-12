@@ -37,6 +37,7 @@ import 'package:taskflow_mobile/features/tasks/widgets/task_card.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_comment_tile.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_details_hero.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_info_row.dart';
+import 'package:taskflow_mobile/features/tasks/widgets/task_priority_legend.dart';
 import 'package:taskflow_mobile/l10n/gen/app_localizations.dart';
 
 Task _task({
@@ -175,7 +176,6 @@ void main() {
         role: 'WORKER',
         isActive: true,
       ),
-      onEditTap: () {},
       onPhotoTap: () {},
     ),
     'ProfileStatCards': const Row(
@@ -198,6 +198,7 @@ void main() {
       ],
     ),
     'ErrorView': const SizedBox(height: 600, child: ErrorView(onRetry: _noop)),
+    'TaskPriorityLegend': const TaskPriorityLegend(),
     'EditNameDialog': const EditNameDialog(
       currentName: 'Demo Worker With A Very Long Full Name',
     ),

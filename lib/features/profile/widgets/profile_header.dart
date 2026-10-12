@@ -8,19 +8,13 @@ import 'package:taskflow_mobile/features/profile/domain/entities/profile.dart';
 import 'package:taskflow_mobile/features/profile/widgets/profile_header_chip.dart';
 import 'package:taskflow_mobile/l10n/gen/app_localizations.dart';
 
-/// Indigo gradient header with rounded bottom corners: screen title and
-/// edit button, a ringed avatar with a camera badge, name, email, and role
+/// Indigo gradient header with rounded bottom corners: screen title, a
+/// ringed avatar with a camera badge, name, email, and role
 /// and status chips. Draws behind the status bar.
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({
-    super.key,
-    required this.profile,
-    this.onEditTap,
-    this.onPhotoTap,
-  });
+  const ProfileHeader({super.key, required this.profile, this.onPhotoTap});
 
   final Profile profile;
-  final VoidCallback? onEditTap;
   final VoidCallback? onPhotoTap;
 
   static const gradient = LinearGradient(
@@ -76,13 +70,6 @@ class ProfileHeader extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (onEditTap != null)
-                    IconButton(
-                      tooltip: l10n.editProfileTitle,
-                      onPressed: onEditTap,
-                      color: onHeader,
-                      icon: const Icon(Icons.edit_outlined),
-                    ),
                 ],
               ),
               const SizedBox(height: AppDimensions.space3),

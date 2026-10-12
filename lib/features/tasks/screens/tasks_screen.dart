@@ -12,6 +12,7 @@ import 'package:taskflow_mobile/features/tasks/providers/tasks_provider.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_card.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_card_skeleton.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_filter_bar.dart';
+import 'package:taskflow_mobile/features/tasks/widgets/task_priority_legend.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_search_bar.dart';
 import 'package:taskflow_mobile/l10n/gen/app_localizations.dart';
 
@@ -96,7 +97,9 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: AppDimensions.space5),
+              const SizedBox(height: AppDimensions.space3),
+              const TaskPriorityLegend(),
+              const SizedBox(height: AppDimensions.space4),
               TaskSearchBar(
                 controller: _searchController,
                 onChanged: (value) => setState(() => _query = value),

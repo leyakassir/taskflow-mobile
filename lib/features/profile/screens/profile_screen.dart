@@ -63,7 +63,6 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 ProfileHeader(
                   profile: value,
-                  onEditTap: () => _editName(context, value.fullName),
                   onPhotoTap: () => _changeProfilePhoto(context, ref),
                 ),
                 Padding(

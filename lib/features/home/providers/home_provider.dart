@@ -24,6 +24,7 @@ class HomeOverview {
     required this.weekTotal,
     required this.weekCompleted,
     required this.onTimeRate,
+    required this.urgentPriorityCount,
     required this.highPriorityCount,
     required this.mediumPriorityCount,
     required this.lowPriorityCount,
@@ -53,7 +54,8 @@ class HomeOverview {
 
   static const onTimeWindow = Duration(days: 30);
 
-  /// Counts over all loaded tasks; urgent is counted as high.
+  /// Counts over all loaded tasks, per priority.
+  final int urgentPriorityCount;
   final int highPriorityCount;
   final int mediumPriorityCount;
   final int lowPriorityCount;
@@ -122,12 +124,11 @@ class HomeOverview {
           .where((task) => task.status == TaskStatus.completed)
           .length,
       onTimeRate: judged.isEmpty ? null : onTime / judged.length,
+      urgentPriorityCount: tasks
+          .where((task) => task.priority == TaskPriority.urgent)
+          .length,
       highPriorityCount: tasks
-          .where(
-            (task) =>
-                task.priority == TaskPriority.high ||
-                task.priority == TaskPriority.urgent,
-          )
+          .where((task) => task.priority == TaskPriority.high)
           .length,
       mediumPriorityCount: tasks
           .where((task) => task.priority == TaskPriority.medium)

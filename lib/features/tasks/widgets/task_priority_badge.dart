@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:taskflow_mobile/app/theme/app_colors.dart';
+import 'package:taskflow_mobile/features/calendar/widgets/calendar_priority_color.dart';
 import 'package:taskflow_mobile/app/theme/app_text_styles.dart';
 import 'package:taskflow_mobile/features/tasks/domain/entities/task.dart';
 import 'package:taskflow_mobile/l10n/gen/app_localizations.dart';
@@ -14,18 +15,15 @@ class TaskPriorityBadge extends StatelessWidget {
 
   final TaskPriority priority;
 
-  /// Accent for a priority: high/urgent red, medium amber, low indigo.
-  /// Also used for the task card's priority bar.
-  static Color colorFor(TaskPriority priority) => switch (priority) {
-    TaskPriority.low => AppColors.info,
-    TaskPriority.medium => AppColors.warning,
-    TaskPriority.high || TaskPriority.urgent => AppColors.danger,
-  };
+  /// Accent for a priority, the same as on the calendar: low grey, medium
+  /// indigo, high amber, urgent red. Also used for the task card's bar.
+  static Color colorFor(TaskPriority priority) =>
+      calendarPriorityColor(priority);
 
   @override
   Widget build(BuildContext context) {
-    final style = _styleFor(context, priority);
-    final foreground = context.readable(style.foreground);
+    final foreground = context.readable(colorFor(priority));
+    final label = calendarPriorityLabel(AppLocalizations.of(context), priority);
 
     return Container(
       // Outlined pill, so it never competes with the filled status chip.
@@ -40,7 +38,7 @@ class TaskPriorityBadge extends StatelessWidget {
           Icon(Icons.flag_rounded, size: 11, color: foreground),
           const SizedBox(width: 4),
           Text(
-            style.label,
+            label,
             style: AppTextStyles.labelSmall.copyWith(
               color: foreground,
               fontWeight: FontWeight.w600,
@@ -50,45 +48,4 @@ class TaskPriorityBadge extends StatelessWidget {
       ),
     );
   }
-
-  _PriorityStyle _styleFor(BuildContext context, TaskPriority priority) {
-    switch (priority) {
-      case TaskPriority.low:
-        return _PriorityStyle(
-          label: AppLocalizations.of(context).priorityLow,
-          foreground: AppColors.info,
-          background: AppColors.infoBg,
-        );
-      case TaskPriority.medium:
-        return _PriorityStyle(
-          label: AppLocalizations.of(context).priorityMedium,
-          foreground: AppColors.warning,
-          background: AppColors.warningBg,
-        );
-      case TaskPriority.high:
-        return _PriorityStyle(
-          label: AppLocalizations.of(context).priorityHigh,
-          foreground: AppColors.danger,
-          background: AppColors.dangerBg,
-        );
-      case TaskPriority.urgent:
-        return _PriorityStyle(
-          label: AppLocalizations.of(context).priorityUrgent,
-          foreground: AppColors.danger,
-          background: AppColors.dangerBg,
-        );
-    }
-  }
-}
-
-class _PriorityStyle {
-  const _PriorityStyle({
-    required this.label,
-    required this.foreground,
-    required this.background,
-  });
-
-  final String label;
-  final Color foreground;
-  final Color background;
 }

@@ -4,9 +4,10 @@ import 'package:taskflow_mobile/app/theme/app_colors.dart';
 import 'package:taskflow_mobile/features/tasks/domain/entities/task.dart';
 import 'package:taskflow_mobile/l10n/gen/app_localizations.dart';
 
-/// Priority color used by calendar markers, the legend and day tiles. Each
-/// priority gets its own hue so markers stay distinguishable; overdue items
-/// use [AppColors.danger] with a ring shape instead of a fill.
+/// The app's priority colors: calendar markers, legends, day tiles, the
+/// bar on the edge of task cards, priority badges and Home's breakdown all
+/// use this. Each priority gets its own hue so they stay distinguishable;
+/// overdue calendar items use [AppColors.danger] with a ring instead.
 Color calendarPriorityColor(TaskPriority priority) => switch (priority) {
   TaskPriority.low => AppColors.neutral,
   TaskPriority.medium => AppColors.info,

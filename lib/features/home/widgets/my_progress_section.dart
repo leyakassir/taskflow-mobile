@@ -63,6 +63,7 @@ class MyProgressSection extends StatelessWidget {
         ),
         const SizedBox(height: AppDimensions.space2),
         PriorityBreakdownRow(
+          urgent: o.urgentPriorityCount,
           high: o.highPriorityCount,
           medium: o.mediumPriorityCount,
           low: o.lowPriorityCount,

@@ -1,13 +1,13 @@
 # 12 — Technical Defense Q&A
 
-> **Last audited:** 2026-10-14. 96 questions in 16 chapters. Each answer is short enough to say aloud and points to the code (paths relative to `lib/`). Learn the **bold** sentence first.
+> **Last audited:** 2026-10-14 · **Updated:** 2026-10-18 (offline mode removed; Chapter 8 is now *Sessions and tokens*). 96 questions in 16 chapters. Each answer is short enough to say aloud and points to the code (paths relative to `lib/`). Learn the **bold** sentence first.
 
 ---
 
 ## Chapter 1 — Project overview
 
 **1. What is TaskFlow mobile?**
-**A worker app: see assigned tasks, do them step by step, submit proof, even offline.** Admins use a separate web dashboard.
+**A worker app: see assigned tasks, do them step by step, and submit proof.** Admins use a separate web dashboard.
 
 **2. Who are the users and what can they do?**
 Workers (signed-in employees). They view, start and complete tasks, comment, get notifications, and manage their profile. Role is shown but the app doesn't restrict by role; the backend does.
@@ -16,30 +16,30 @@ Workers (signed-in employees). They view, start and complete tasks, comment, get
 Flutter/Dart, Riverpod 2.6 (state + DI), GoRouter 14 (navigation), Dio 5 (HTTP), secure storage + SharedPreferences, Firebase Cloud Messaging, gen-l10n (English/Arabic).
 
 **4. How big is the code base?**
-About 197 Dart files in `lib/` (excluding generated l10n), 13 feature folders, 10 test files with 149 passing test cases.
+About 177 Dart files in `lib/` (excluding generated l10n), 12 feature folders, 9 test files with 144 passing test cases.
 
 **5. What's the most technically interesting part?**
-**Offline-first task work**: cached reads, an ordered write queue, automatic replay, and a failure list (`core/offline/`, `features/sync/`).
+**Silent session renewal and live updates.** A 15-minute access token is renewed with a rotating refresh token without the user noticing (`core/network/api_interceptor.dart`), and admin changes arrive instantly over Server-Sent Events (`features/realtime/`).
 
 **6. What would you improve first?**
-HTTPS and release signing (needed to ship), a global 401 handler, and backend-side statistics instead of computing them from loaded pages.
+HTTPS and release signing (needed to ship), iOS configuration, and backend-side statistics instead of computing them from loaded pages.
 
 ## Chapter 2 — Architecture
 
 **7. Which architecture did you use?**
-**Feature-first folders with layers: screens → Riverpod notifiers → repositories → remote/local data sources.** Clean-architecture-inspired, without a use-case layer.
+**Feature-first folders with layers: screens → Riverpod notifiers → repositories → remote data sources → Dio.** Clean-architecture-inspired, without a use-case layer.
 
 **8. Why feature-first instead of layer-first?**
 Everything about "tasks" lives in `features/tasks/`. It's easier to find code and change one feature without touching others.
 
 **9. What does a repository do here?**
-It decides where data comes from: server, cache or queue. Example: `TaskRepositoryImpl.getTasks` calls the API, saves the cache, and falls back to the cache when offline.
+It is the contract between state and data. `TaskRepositoryImpl` calls the remote data source and combines calls when needed, e.g. `getTasksInRange` loads every page of a month for the calendar.
 
 **10. Why abstract repository interfaces?**
 Notifiers depend on `TaskRepository`, not the implementation, so tests can swap in fakes. See `domain/repositories/task_repository.dart`.
 
 **11. Where is business logic?**
-Mostly in notifiers (`TasksController`, `TaskDetailsController`), repositories (offline rules) and pure functions (`HomeOverview.fromTasks`).
+Mostly in notifiers (`TasksController`, `TaskDetailsController`), the interceptor (session renewal) and pure functions (`HomeOverview.fromTasks`).
 
 **12. Why no use cases?**
 Most operations are one repository call. A use-case layer would add files without adding logic. It's a conscious simplification.
@@ -59,7 +59,7 @@ On first launch it can take seconds; Android would show a blank launch screen. `
 Branding requirement. `SplashScreen.minimumDuration` counts from the first drawn frame so slow devices still show the full animation.
 
 **17. What if the server is down at startup?**
-With a token: unreachable → Home in offline mode with cached data; 5xx → error panel with Retry. Without a token → Login.
+With a token: unreachable or 5xx → error panel with Retry, tokens kept. Without a token → Login.
 
 **18. How is onboarding shown only once?**
 `hasSeenOnboarding` flag in SharedPreferences, set by `OnboardingController.markSeen()`; not reset on logout.
@@ -105,27 +105,27 @@ One state per task id: `taskDetailsControllerProvider(id)`, `taskCommentsControl
 State that should die with its screen: comments, calendar, and realtime, which must stop at logout.
 
 **31. How do you reset state on logout?**
-`AuthController._clearUserData()` calls `ref.invalidate` on every per-user provider; the offline store and queue are cleared too.
+`AuthController._clearUserData()` calls `ref.invalidate` on every per-user provider. Nothing user-related is stored on the phone.
 
 ## Chapter 6 — Authentication
 
 **32. How does login work?**
-**`POST /auth/login` → access token saved in secure storage → per-user state reset → auth state true → router sends to Home → push registration.**
+**`POST /auth/login` (with `client: "mobile"`) → access + refresh tokens saved in secure storage → per-user state reset → auth state true → router sends to Home → push registration.**
 
 **33. Where is the token stored and why?**
-`flutter_secure_storage`, key `accessToken`. It's encrypted by Android Keystore / iOS Keychain; SharedPreferences isn't.
+`flutter_secure_storage`, keys `accessToken` and `refreshToken`. It's encrypted by Android Keystore / iOS Keychain; SharedPreferences isn't.
 
 **34. How is the token sent?**
 `ApiInterceptor.onRequest` adds `Authorization: Bearer <token>` to every request.
 
 **35. Is there a refresh token?**
-No. Sessions last a year (backend setting). Expiry is detected at the next app start.
+Yes. The access token lasts 15 minutes; the refresh token lasts 30 days from its last use and is replaced on every refresh. See Chapter 8.
 
 **36. What happens on 401 mid-session?**
-Honest answer: **the message is shown; the user isn't logged out automatically.** Queued work is kept. Next start → login. A global 401 handler is the planned fix.
+**The interceptor renews the token and resends the request; the user sees nothing.** Only if the refresh is rejected are the tokens deleted and the user sent to login.
 
 **37. What if a different user logs in on the same phone?**
-`AuthController.login` compares the cached profile id; if different, it wipes the cache, queue and kept files.
+Nothing of the previous user is saved on the phone, and `_clearUserData` invalidates every per-user provider at login, so the new user starts clean.
 
 ## Chapter 7 — Networking
 
@@ -133,13 +133,13 @@ Honest answer: **the message is shown; the user isn't logged out automatically.*
 **Interceptors, timeouts, multipart, cancel tokens, streaming responses.** All are used here.
 
 **39. How many Dio instances?**
-One (`dioProvider`), plus a separate short-timeout instance for the connectivity probe on purpose.
+One (`dioProvider`). The interceptor also keeps a second `Dio` without interceptors, only for `POST /auth/refresh`, so a refresh can't trigger another refresh.
 
 **40. How are errors handled?**
 The interceptor maps every `DioException` to an `ApiException` with a `kind` (offline, timeout, server…). Data sources rethrow only `ApiException`; UI shows `error.localized(l10n)`.
 
-**41. Why is connect timeout treated as offline?**
-The request never reached the server, so it's safe to queue. Receive timeouts aren't queued; the request may have arrived.
+**41. Why is connect timeout treated as "no connection"?**
+The request never reached the server, so the user gets "No internet connection". A receive timeout is different: the request may have arrived, so it shows "Connection timed out" and is not resent automatically (to avoid duplicates).
 
 **42. How is pagination done?**
 `GET /tasks?page&limit=20`; `loadNextPage` when the user is within 300 px of the end; flags for the footer spinner/Retry.
@@ -147,28 +147,28 @@ The request never reached the server, so it's safe to queue. Receive timeouts ar
 **43. How do uploads work?**
 Multipart `FormData` with `kind` (PHOTO/FILE) and the file → `POST /tasks/:id/attachments`.
 
-## Chapter 8 — Offline mode
+## Chapter 8 — Sessions and tokens
 
-**44. How does the app work offline?**
-**Reads come from a JSON cache; writes go into an ordered queue; the queue is replayed when the server is reachable.**
+**44. How long does a session last?**
+**The access token lasts 15 minutes; it is renewed silently with a refresh token.** The refresh token lasts 30 days from its last use, so a worker who opens the app at least once a month stays signed in.
 
-**45. Where is the cache?**
-SharedPreferences under `offline.*` keys (`OfflineStore`). It's fast and loaded at startup.
+**45. What is this technique called?**
+Silent token refresh with refresh-token rotation (a sliding session).
 
-**46. How do you know you're offline?**
-No plugin: every Dio result reports reachability; while offline, `/config/locales` is probed every 15 s and on resume.
+**46. How does the refresh work?**
+A request gets 401 → `ApiInterceptor.onError` calls `POST /auth/refresh` with the refresh token → saves the new access and refresh tokens → resends the original request once with `dio.fetch`.
 
-**47. How do you keep the order of changes?**
-FIFO queue; once a task has a queued change, new changes for it are queued too (`_sendOrQueue`), so "start" never arrives after "complete".
+**47. What if three requests fail with 401 at the same time?**
+They share one refresh: `_refreshing ??= _refresh()` keeps a single `Future` that all of them await. Otherwise the second request would reuse a refresh token that was just replaced. Tested in `session_test.dart`.
 
-**48. How does the UI show unsent changes?**
-`_withPending` applies queued changes on top of the cached task; `PendingSyncBadge` and `SyncStatusBar` show pending state.
+**48. Why is each refresh token single use?**
+If a copied token is used after the real app has already replaced it, the server sees the reuse and ends every session of that user. A stolen refresh token stops working.
 
-**49. What if the server refuses a queued change?**
-4xx → removed from queue and listed as a `SyncFailure` in a sheet. Offline/timeout/5xx/401 → kept for later.
+**49. When is the user sent to login?**
+Only when the refresh is rejected: 30 days without using the app, a password reset, an account deactivated by an admin, or logout. A network error during refresh keeps the tokens.
 
-**50. Does the queue survive closing the app?**
-Yes, persisted in `offline.queue`. Tested: "the queue survives an app restart".
+**50. Why did you remove offline mode?**
+A product decision: the app now always shows the server's current data. With no connection, screens show "No internet connection" with Retry. It also removed the unencrypted cache (a security finding) and a lot of code.
 
 ## Chapter 9 — Tasks
 
@@ -202,7 +202,7 @@ They cover loaded pages only (20 at first). A backend summary endpoint would fix
 Last 30 days: tasks completed by the deadline ÷ tasks whose outcome is known. Open-and-late counts as missed; cancelled or no-deadline tasks are excluded.
 
 **60. How does the calendar load data?**
-`calendarMonthTasksProvider(month)` fetches all pages for that month with `from/to`; offline it filters the cache.
+`calendarMonthTasksProvider(month)` fetches all pages (100 per page) for that month with `from/to`.
 
 **61. What was the calendar crash and fix?**
 Reading `.value` of an `AsyncValue` in error state rethrew during build; replaced with `valueOrNull`.
@@ -272,14 +272,14 @@ Widget tree → element tree → render tree; it paints itself with its own engi
 **80. Biggest security weakness?**
 **No HTTPS in the current setup**, so tokens travel in clear on the LAN. Production needs TLS.
 
-**81. Is the offline cache safe?**
-It's inside the app sandbox but not encrypted. It's cleared on logout/account switch. Encrypting it is a listed improvement.
+**81. Is any user data stored on the phone?**
+Only the two tokens, in encrypted secure storage. Tasks, comments and the profile live in memory; SharedPreferences holds just theme, language and the onboarding flag.
 
 **82. Are there secrets in the app?**
 No API keys or passwords in Dart. The API URL comes from `--dart-define`. Firebase client config is normal app config.
 
 **83. How is logout made safe?**
-The push token is removed server-side first (while still authenticated), then the tokens, cache, queue and in-memory state are cleared.
+The push token is removed server-side first (while still authenticated), then `POST /auth/logout` revokes the refresh token, then both tokens and the in-memory state are cleared.
 
 **84. Why is the WebView's JavaScript disabled?**
 Legal pages are static HTML; disabling JS removes a script-injection surface.
@@ -290,7 +290,7 @@ The app only shows what `GET /tasks` returns for the token; filtering is enforce
 ## Chapter 15 — Testing and quality
 
 **86. What's tested?**
-149 cases: boot timing, session validation, offline queue (10), realtime (7), pagination (5), on-time rate (5), signup flow, layout robustness.
+144 cases: boot timing, session and token refresh (8), realtime (7), pagination (5), on-time rate (5), signup flow, layout robustness.
 
 **87. How do you test without a server?**
 `ProviderScope` overrides: fake data sources and mock SharedPreferences.

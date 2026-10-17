@@ -32,13 +32,13 @@ page: (json['page'] as num?)?.toInt() ?? 1,
 ### 4. Immutability and `copyWith`
 Entities are immutable; changes create a new object:
 ```dart
-// task_repository_impl.dart (_withPending)
-result = result.copyWith(status: TaskStatus.completed, completionTimestamp: op.createdAt);
+// task_comments_provider.dart (TaskCommentsController.send)
+state = AsyncData(current.copyWith(comments: _merge(current.comments, [comment])));
 ```
 Why: Riverpod detects a new state object and rebuilds; no hidden mutation.
 
 ### 5. Enums
-`TaskStatus { assigned, inProgress, completed, overdue, cancelled }`, `TaskPriority`, `ApiErrorKind`, `PendingOperationType`. Stored by `.name` (`PendingOperation.toJson` → `'type': type.name`) and parsed back with `values.where((t) => t.name == json['type']).firstOrNull` so unknown values are dropped safely.
+`TaskStatus { assigned, inProgress, completed, overdue, cancelled }`, `TaskPriority`, `ApiErrorKind`, `RealtimeEventType`. Backend strings are converted with a `switch`: `taskStatusFromJson('IN_PROGRESS')` → `TaskStatus.inProgress` and `taskStatusToJson` back (`task_model.dart`).
 
 ### 6. Switch expressions and patterns (Dart 3)
 ```dart
@@ -81,14 +81,15 @@ if (from != null) 'from': from.toUtc().toIso8601String(),
 ### 9. async / await, Future
 `Future<T>` = a value later. `await` pauses the function, not the app (single-threaded event loop).
 - `unawaited(FirebaseBootstrap.ensureInitialized())` in `main.dart` — start but don't wait.
-- `Future.microtask(() => sync(refreshCache: true))` in `SyncController.build` — run right after `build` returns (you can't change state inside `build`).
+- `Future.microtask(_connect)` in `RealtimeController.build` — run right after `build` returns (you can't change state inside `build`).
+- A shared `Future` as a lock: `_refreshing ??= _refresh().whenComplete(() => _refreshing = null)` in `ApiInterceptor` — every request that fails with 401 at the same moment awaits the **same** refresh.
 - `try / on ApiException catch (e) / catch (_) / finally` — see `LoginForm._submit`.
 
 ### 10. Streams
 A sequence of async events. Used for SSE: `body.stream.cast<List<int>>().transform(utf8.decoder).transform(const LineSplitter())` → `parseServerSentEvents` → `Stream<RealtimeEvent>`; subscribed with `listen(onData, onError:, onDone:, cancelOnError: true)` and cancelled in `_disconnect()`. Also FCM: `FirebaseMessaging.onMessage.listen(...)`, `onTokenRefresh.listen(...)`.
 
 ### 11. Timers
-`Timer.periodic` (connectivity probe every 15 s; resend-code countdown), one-shot `Timer` (realtime debounce 400 ms, reconnect backoff). Always cancelled in `ref.onDispose` / `dispose()`.
+`Timer.periodic` (resend-code countdown), one-shot `Timer` (realtime debounce 400 ms, reconnect backoff). Always cancelled in `ref.onDispose` / `dispose()`.
 
 ### 12. Isolates
 **Not used.** All JSON parsing is on the main isolate. Fine for the data sizes here (≤ 100 tasks per request). If asked: `compute()` could move heavy parsing off the UI thread.
@@ -141,7 +142,7 @@ Explicit animations with `AnimationController` + `SingleTickerProviderStateMixin
 Packages like `flutter_secure_storage`, `image_picker`, `firebase_messaging`, `webview_flutter` call native Android/iOS code through method channels. That's why `WidgetsFlutterBinding.ensureInitialized()` runs first in `main()`.
 
 ### 25. App lifecycle
-`AppLifecycleListener(onResume:, onPause:)` — used by `ConnectivityController` (probe on resume) and `RealtimeController` (disconnect on pause, reconnect on resume). The notification bell refreshes on resume too.
+`AppLifecycleListener(onResume:, onPause:)` — used by `RealtimeController` (disconnect on pause, reconnect on resume). The notification bell refreshes on resume too.
 
 ### 26. Build modes
 Debug (hot reload, asserts, slow), Profile (performance measurement), Release (AOT-compiled, optimised, **no cleartext HTTP here**). `debugPrint` output still exists in release but is rate-limited; it is not shown to users.

@@ -19,10 +19,9 @@ flowchart TD
   I -->|hasSeenOnboarding == false| J["/onboarding"]
   I -->|seen| K["authController.validateSession()"]
   K -->|no token| L["/login"]
-  K -->|GET /auth/me 200| M["/app/home  + FCM setup"]
-  K -->|401 / 403| N["token deleted → /login"]
-  K -->|offline / connect timeout| M2["/app/home (offline mode, cached data)"]
-  K -->|5xx / receive timeout / other| O["Stay on splash:<br/>SplashErrorPanel + Retry"]
+  K -->|GET /auth/me 200<br/>(expired access token renewed on the way)| M["/app/home  + FCM setup"]
+  K -->|401 / 403 after refresh failed| N["tokens deleted → /login"]
+  K -->|no connection / 5xx / timeout| O["Stay on splash:<br/>SplashErrorPanel + Retry"]
 ```
 
 | Step | File · symbol | Why it exists | If it fails |
@@ -30,7 +29,7 @@ flowchart TD
 | Native launch screen | `android/app/src/main/res/drawable/launch_background.xml`, `values-v31/styles.xml` | Something must show before Flutter draws | — (static) |
 | Binding | `main.dart` → `WidgetsFlutterBinding.ensureInitialized()` | Plugins (prefs, Firebase) need the engine ready | — |
 | Firebase | `core/notifications/firebase_bootstrap.dart` → `FirebaseBootstrap.ensureInitialized()` | Push notifications. Started **without awaiting** so the splash draws immediately | Returns `false`, logs with `debugPrint`; push is skipped, the app works |
-| Preferences | `main.dart` → `SharedPreferences.getInstance()` | Settings, onboarding flag and offline cache must be readable synchronously | Not caught — an exception here would stop startup (*inferred*, very unlikely on a real device) |
+| Preferences | `main.dart` → `SharedPreferences.getInstance()` | Settings and the onboarding flag must be readable synchronously | Not caught — an exception here would stop startup (*inferred*, very unlikely on a real device) |
 | ProviderScope | `main.dart` | Root of Riverpod; injects the loaded prefs via `overrideWithValue` | `sharedPreferencesProvider` throws `UnimplementedError` if not overridden (by design, e.g. in tests) |
 | App root | `app/app.dart` → `TaskFlowApp` | Applies theme, dark mode, locale, l10n delegates, router | — |
 | Router | `app/router/app_router.dart` → `goRouterProvider` | Single `GoRouter`, `initialLocation: RouteNames.splash` | — |
@@ -43,13 +42,13 @@ flowchart TD
 ### Session restoration — validated, not just "token exists"
 `AuthRepositoryImpl.validateSession()`:
 1. No token in secure storage → `false` (no network call).
-2. Token present → `GET /auth/me` through Dio.
-3. Success → `true`. `ApiException` with `isOffline` → **`true`** (offline mode: cached data is shown; the server re-checks later). 401/403 → token deleted, `false`. Anything else (5xx, receive timeout, generic) → **rethrown** so the splash shows an error with Retry.
+2. Token present → `GET /auth/me` through Dio. If the 15-minute access token has expired, `ApiInterceptor` renews it with the refresh token and resends the request — the splash never notices.
+3. Success → `true`. 401/403 (the refresh was rejected too) → both tokens deleted, `false`. Anything else (no connection, 5xx, timeout) → **rethrown** so the splash shows an error with Retry.
 
-**Confirmed** by `test/offline_session_test.dart` (3 tests).
+**Confirmed** by `test/session_test.dart` (3 startup tests + 5 refresh tests).
 
 ### Can startup get stuck?
-- Backend down + token saved → *connection refused* is classified **offline** → app opens Home with cached data (or a Home error state with Retry if nothing was ever cached). *Inferred from code.*
+- Backend down + token saved → *connection refused* → splash error panel + Retry. The tokens are kept, so Retry works once the server is back. **Confirmed** (`session_test.dart`).
 - Backend returns 500 → splash stays with an error and Retry. *Inferred.*
 - Request hangs → `receiveTimeout` 15 s → timeout error → splash error + Retry. Not stuck indefinitely. *Inferred.*
 - No token → no network needed → login. *Inferred* (code path in `validateSession`; not a separate test).
@@ -94,10 +93,10 @@ return null;
 ```
 `_RouterNotifier` listens to `authControllerProvider` and is the router's `refreshListenable`, so the redirect re-runs whenever login state changes.
 
-> **Important nuance:** `AuthController.build()` sets "authenticated" to *"a token exists"*. The redirect therefore trusts token **presence**; token **validity** is only checked by the splash (`validateSession`). A token that expires *during* a session is not detected by the router (see doc 04 §6).
+> **Important nuance:** `AuthController.build()` sets "authenticated" to *"a token exists"*. The redirect trusts token **presence**; **validity** is handled by the interceptor: an expired access token is renewed silently, and if the server ends the session the interceptor calls `AuthController.sessionExpired()`, which sets the state to false so the redirect sends the user to `/login` (see doc 04 §6).
 
 ### Bottom navigation
-`StatefulShellRoute.indexedStack` with four branches (Home, Tasks, Calendar, Profile). `MainNavigationScreen` renders `navigationShell` plus a `NavigationBar`; `goBranch(index, initialLocation: index == currentIndex)` switches tabs and, when tapping the current tab, returns to its root. Each tab keeps its own back stack (an `IndexedStack` keeps tabs alive). The `SyncStatusBar` sits above the bar.
+`StatefulShellRoute.indexedStack` with four branches (Home, Tasks, Calendar, Profile). `MainNavigationScreen` renders `navigationShell` plus a `NavigationBar`; `goBranch(index, initialLocation: index == currentIndex)` switches tabs and, when tapping the current tab, returns to its root. Each tab keeps its own back stack (an `IndexedStack` keeps tabs alive). The shell also keeps live updates running (`ref.watch(realtimeProvider)`).
 
 ### Passing data between screens
 - **Path parameter:** task id → `state.pathParameters['id']`.
@@ -115,13 +114,13 @@ Not configured: no `<intent-filter>` with a `<data android:scheme=…>` in the A
 |---|---|---|---|
 | 1 | **First launch** | Splash (6 s) → `hasSeenOnboarding == false` → `/onboarding` → "Get started"/"Skip" → `markSeen()` → `/login` | **Confirmed** (widget test) |
 | 2 | **Existing user opens app** | Splash → `validateSession()` → `GET /auth/me` → `/app/home`; `FcmService.initializeForAuthenticatedUser()` runs | Confirmed in unit tests for the repository; full flow *inferred* |
-| 3 | **Sign in** | `LoginForm._submit()` validates → `authController.login()` → `POST /auth/login` → token saved → offline data cleared if a different user → providers invalidated → state `AsyncData(true)` → redirect sends `/login` → `/app/home` | *Inferred* (no test drives a real login) |
+| 3 | **Sign in** | `LoginForm._submit()` validates → `authController.login()` → `POST /auth/login` → access + refresh tokens saved → per-user providers invalidated → state `AsyncData(true)` → redirect sends `/login` → `/app/home` | *Inferred* (no test drives a real login) |
 | 4 | **Open task list** | Tasks tab → `TasksScreen` watches `tasksControllerProvider` → `GET /tasks?page=1&limit=20` | Paging **confirmed** (`tasks_pagination_test.dart`) |
 | 5 | **Open a task** | `TaskCard.onTap` → `context.push(RouteNames.taskDetailsPath(id))` → `TaskDetailsScreen` watches `taskDetailsControllerProvider(id)` → `GET /tasks/:id` | *Inferred* |
-| 6 | **Start a task** | `TaskActionBar` "Start" → `TaskDetailsController.updateStatus(inProgress)` → `PATCH /tasks/:id/status {status: IN_PROGRESS}` (or queued offline) | Offline path **confirmed** (`offline_sync_test.dart`) |
-| 7 | **Complete a task** | "Complete task" → `/complete` → photos/files uploaded as picked → "Submit" → `PATCH /tasks/:id/complete` → pop + snackbar | Offline/queue path **confirmed**; online path *inferred* |
-| 8 | **Log out** | Profile → `ProfileLogoutButton` → (`LogoutPendingDialog` if unsent changes) → `signOut()` → `DELETE /me/device-token`, tokens deleted, offline data cleared, providers invalidated → `context.go('/login')` | *Inferred* |
-| 9 | **Token expires mid-session** | Requests return 401 → shown as the server's message; not logged out; on next app start splash gets 401 → `/login` | *Inferred*; **limitation** (doc 04) |
-| 10 | **Backend unavailable at startup** | No token → login. Token + unreachable → Home in offline mode. Token + 5xx → splash error + Retry | Repository behavior **confirmed** (`offline_session_test.dart`); UI *inferred* |
+| 6 | **Start a task** | `TaskActionBar` "Start" → `TaskDetailsController.updateStatus(inProgress)` → `PATCH /tasks/:id/status {status: IN_PROGRESS}` | *Inferred* |
+| 7 | **Complete a task** | "Complete task" → `/complete` → photos/files uploaded as picked → "Submit" → `PATCH /tasks/:id/complete` → pop + snackbar | *Inferred* |
+| 8 | **Log out** | Profile → `ProfileLogoutButton` → `signOut()` → `DELETE /me/device-token`, `POST /auth/logout` (refresh token revoked), tokens deleted, providers invalidated → `context.go('/login')` | *Inferred* |
+| 9 | **Access token expires mid-session (every 15 min)** | Request gets 401 → `ApiInterceptor` calls `POST /auth/refresh` → saves the new pair → resends the request. User sees nothing. If the refresh is rejected → tokens deleted → `sessionExpired()` → `/login` | **Confirmed** (`session_test.dart`) |
+| 10 | **Backend unavailable at startup** | No token → login. Token + unreachable or 5xx → splash error + Retry, tokens kept | Repository behavior **confirmed** (`session_test.dart`); UI *inferred* |
 
 See [04 Authentication](04_AUTHENTICATION_AND_STORAGE.md) for the auth details and [06 Features](06_FEATURES_WALKTHROUGH.md) for each screen.

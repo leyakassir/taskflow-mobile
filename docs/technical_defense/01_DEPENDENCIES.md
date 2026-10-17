@@ -16,7 +16,7 @@ Dart SDK constraint: `sdk: ^3.13.3`. Flutter used at audit time: **3.47.3 (stabl
 | `go_router` | ^14.0.0 | 14.8.1 | Navigation / routing | Essential |
 | `dio` | ^5.7.0 | 5.11.1 | HTTP client | Essential |
 | `flutter_secure_storage` | 11.2.0 (pinned) | 11.2.0 | Stores the login token encrypted | Essential |
-| `shared_preferences` | ^2.3.2 | 2.5.5 | Settings, onboarding flag, offline cache | Essential |
+| `shared_preferences` | ^2.3.2 | 2.5.5 | Settings and onboarding flag | Essential |
 | `firebase_core` | ^3.8.1 | 3.15.2 | Starts Firebase | Needed for push |
 | `firebase_messaging` | ^15.1.3 | 15.2.10 | Push notifications (FCM) | Needed for push |
 | `flutter_local_notifications` | ^18.0.1 | 18.0.1 | Shows pushes while the app is open; notification channel | Needed for push |
@@ -28,12 +28,13 @@ Dart SDK constraint: `sdk: ^3.13.3`. Flutter used at audit time: **3.47.3 (stabl
 | `image_picker` | ^1.2.3 | 1.2.3 | Camera / gallery photos | Feature-specific |
 | `file_picker` | ^13.1.0 | 13.1.0 | Pick documents for task completion | Feature-specific |
 | `table_calendar` | ^3.3.0 | 3.3.0 | Month calendar widget | Feature-specific |
-| `path_provider` | ^2.1.6 | 2.1.6 | App documents folder for offline uploads | Feature-specific |
 | dev: `flutter_test` | sdk | — | Tests | Dev |
 | dev: `flutter_lints` | ^6.0.0 | 6.0.0 | Lint rules (`analysis_options.yaml`) | Dev |
 | dev: `flutter_launcher_icons` | ^0.14.4 | 0.14.4 | Generates launcher icons from `assets/icons/taskflow_icon.png` | Dev (run manually) |
 
-> **Removed on 2026-10-14:** `freezed_annotation`, `json_annotation`, `cupertino_icons`, `build_runner`, `freezed`, `json_serializable`. After removal: `flutter pub get` OK, `flutter analyze` clean, 149 tests pass, and every remaining package kept its version.
+> **Removed on 2026-10-14:** `freezed_annotation`, `json_annotation`, `cupertino_icons`, `build_runner`, `freezed`, `json_serializable`. After removal: `flutter pub get` OK, `flutter analyze` clean, all tests pass, and every remaining package kept its version.
+>
+> **Removed on 2026-10-18:** `path_provider`, which only served offline mode (kept copies of files picked while offline). It is still pulled in indirectly by other packages (e.g. `google_fonts`).
 >
 > **How they were found to be unused:** there is no `@freezed`, `@JsonSerializable`, `part '….g.dart'`, or any generated `*.g.dart` / `*.freezed.dart` file in `lib/`. All models use hand-written `fromJson` (e.g. `TaskModel.fromJson` in `features/tasks/data/models/task_model.dart`).
 
@@ -43,7 +44,7 @@ Dart SDK constraint: `sdk: ^3.13.3`. Flutter used at audit time: **3.47.3 (stabl
 
 ### flutter_riverpod (2.6.1)
 - **Simple:** a way for any screen to get shared data and services without passing them through every constructor.
-- **Why TaskFlow needs it:** the task list, profile, notifications, settings, auth state, offline queue, Dio client and repositories are all shared objects.
+- **Why TaskFlow needs it:** the task list, profile, notifications, settings, auth state, Dio client and repositories are all shared objects.
 - **Where:** 68 files. Core examples: `ProviderScope` in `main.dart`; `authControllerProvider` (`AsyncNotifierProvider`) in `features/auth/providers/auth_provider.dart`; `ConsumerWidget` screens such as `HomeScreen`.
 
 - **APIs used:** `Provider`, `NotifierProvider`, `AsyncNotifierProvider`, `.family`, `.autoDispose`, `StateProvider`, `FutureProvider`, `ref.watch`, `ref.read`, `ref.listen`, `ref.invalidate`, `ref.exists`, `ref.onDispose`, `overrideWithValue` (in `main.dart` and tests).
@@ -66,23 +67,23 @@ Dart SDK constraint: `sdk: ^3.13.3`. Flutter used at audit time: **3.47.3 (stabl
 
 ### dio (5.11.1)
 - **Simple:** sends HTTP requests to the server and returns the replies.
-- **Where:** created **once** in `core/network/dio_client.dart` (`dioProvider`) with `BaseOptions(baseUrl, connectTimeout 15 s, receiveTimeout 15 s, JSON header)` and `ApiInterceptor`. Used by every `*_remote_data_source.dart`, by `FcmService` (device token), by `RealtimeRemoteDataSource` (streamed response), and a separate tiny `Dio` in `ConnectivityController.probe()`.
-- **Features used:** interceptors (`onRequest` adds `Authorization: Bearer`, `onError` maps to `ApiException`), `FormData`/`MultipartFile` uploads, `ResponseType.stream`, `CancelToken`.
+- **Where:** created **once** in `core/network/dio_client.dart` (`dioProvider`) with `BaseOptions(baseUrl, connectTimeout 15 s, receiveTimeout 15 s, JSON header)` and `ApiInterceptor`. Used by every `*_remote_data_source.dart`, by `FcmService` (device token), by `RealtimeRemoteDataSource` (streamed response). `ApiInterceptor` also keeps a second `Dio` without interceptors, used only for `POST /auth/refresh` so a refresh can never trigger another refresh.
+- **Features used:** interceptors (`onRequest` adds `Authorization: Bearer`; `onError` renews an expired token and resends the request, then maps errors to `ApiException`), `dio.fetch` (resend), `FormData.clone()` (resend an upload), `FormData`/`MultipartFile` uploads, `ResponseType.stream`, `CancelToken`.
 - **If removed:** no server communication.
 - **Defense Q:** *Where is the token added?* — In `ApiInterceptor.onRequest`, read from secure storage before every request. See [doc 05](05_API_AND_DIO.md).
 
 ### flutter_secure_storage (11.2.0)
 - **Simple:** an encrypted safe on the phone (Android Keystore-backed) for secrets.
-- **Where:** only `core/storage/secure_storage_service.dart` (`SecureStorageService` with `read/write/delete/deleteAll`). Keys used: `StorageKeys.accessToken` (written at login), `StorageKeys.refreshToken` (only ever deleted — never written).
+- **Where:** only `core/storage/secure_storage_service.dart` (`SecureStorageService` with `read/write/delete/deleteAll`). Keys used: `StorageKeys.accessToken` (15-minute JWT) and `StorageKeys.refreshToken` (30-day token used to get a new access token). Both are written at login and on every refresh, and deleted at logout or when the session ends.
 - **If removed:** the token would need to live in plain storage (insecure) or the user would log in every launch.
 - **Defense Q:** *Why not SharedPreferences for the token?* — SharedPreferences is a plain XML file on Android; the JWT is a credential, so it goes in the encrypted store.
 
 ### shared_preferences (2.5.5)
 - **Simple:** a small key/value file for non-secret settings.
 - **Where:** loaded once in `main.dart` (`SharedPreferences.getInstance()`) and injected via `sharedPreferencesProvider.overrideWithValue(prefs)`; wrapped by `LocalStorageService` (`core/storage/local_storage_service.dart`).
-- **Stores:** `themeMode`, `localeCode`, `hasSeenOnboarding`, and every `offline.*` key (task cache, profile, notifications, comments, sync queue) via `OfflineStore`.
-- **Why loaded before `runApp`:** settings, onboarding flag and offline cache can then be read **synchronously** by providers.
-- **Defense Q:** *Is the offline cache encrypted?* — No. It is plain JSON in SharedPreferences (tasks, comments, profile). See [doc 10](10_SECURITY_AND_RELIABILITY_AUDIT.md).
+- **Stores:** only `themeMode`, `localeCode` and `hasSeenOnboarding`. No user data is kept on the phone (offline mode was removed on 2026-10-18).
+- **Why loaded before `runApp`:** settings and the onboarding flag can then be read **synchronously** by providers, so the first frame already has the right theme and language.
+- **Defense Q:** *Why not keep the token here?* — SharedPreferences is not encrypted; tokens go to `flutter_secure_storage`.
 
 ### firebase_core (3.15.2) · firebase_messaging (15.2.10) · flutter_local_notifications (18.0.1)
 - **Simple:** Firebase gives each phone a push address (FCM token); the app sends it to the backend so the server can push "New task assigned". The local-notifications plugin draws the notification when the app is open.
@@ -102,10 +103,9 @@ Dart SDK constraint: `sdk: ^3.13.3`. Flutter used at audit time: **3.47.3 (stabl
 - **Where:** `app/app.dart` registers `AppLocalizations.delegate` and the `Global*Localizations` delegates; `l10n.yaml` drives `flutter gen-l10n` into `lib/l10n/gen/`. `intl`'s `DateFormat` formats dates per locale in 7 files (e.g. `task_card.dart`, `welcome_header.dart`, `date_utils.dart`).
 - **Supports:** English and Arabic, including right-to-left layout. See [doc 08](08_UI_AND_DESIGN_SYSTEM.md).
 
-### image_picker (1.2.3) · file_picker (13.1.0) · path_provider (2.1.6)
+### image_picker (1.2.3) · file_picker (13.1.0)
 - **image_picker:** camera/gallery chooser (`core/widgets/photo_source_sheet.dart`), task photos (`complete_task_screen.dart`), profile photo (`profile_screen.dart`). Photos are resized (`maxWidth/maxHeight: 2000`, `imageQuality: 85`).
 - **file_picker:** documents for completion (`pdf, doc, docx, xls, xlsx, txt, csv`) in `complete_task_screen.dart` (`FilePicker.pickFiles`).
-- **path_provider:** `core/offline/offline_files.dart` copies a photo/file into the app's documents folder when it must wait for an offline upload (`getApplicationDocumentsDirectory`).
 - All picked files **are really uploaded** (multipart) — see [doc 06 §Completion](06_FEATURES_WALKTHROUGH.md).
 
 ### table_calendar (3.3.0)
@@ -123,10 +123,9 @@ Dart SDK constraint: `sdk: ^3.13.3`. Flutter used at audit time: **3.47.3 (stabl
 |---|---|---|
 | `MaterialApp.router` | Connects GoRouter, themes, locales | `app/app.dart` |
 | Material 3 `ThemeData` / `ColorScheme` | Design system | `app/theme/app_theme.dart` |
-| `AppLifecycleListener` | Refresh on resume; pause live updates in background | `notification_bell_button.dart`, `connectivity_provider.dart`, `realtime_provider.dart` |
-| `dart:convert` (`jsonEncode/jsonDecode`, `utf8`, `LineSplitter`) | Offline cache, SSE parsing | `offline_store.dart`, `realtime_remote_data_source.dart` |
-| `dart:async` (`Timer`, `StreamSubscription`, `Completer`-style memoized `Future`) | Probing, debounce, Firebase bootstrap | `connectivity_provider.dart`, `realtime_provider.dart`, `firebase_bootstrap.dart` |
-| `dart:io` (`File`, `Directory`) | Copy files for offline upload | `offline_files.dart` |
+| `AppLifecycleListener` | Refresh on resume; pause live updates in background | `notification_bell_button.dart`, `realtime_provider.dart` |
+| `dart:convert` (`jsonEncode/jsonDecode`, `utf8`, `LineSplitter`) | Notification payloads, SSE parsing | `fcm_service.dart`, `realtime_remote_data_source.dart` |
+| `dart:async` (`Timer`, `StreamSubscription`, `Completer`-style memoized `Future`) | Debounce, reconnect backoff, single in-flight token refresh, Firebase bootstrap | `realtime_provider.dart`, `api_interceptor.dart`, `firebase_bootstrap.dart` |
 | `CustomPainter` | Animated splash/login background shapes | `splash_background_painter.dart` |
 
 ---

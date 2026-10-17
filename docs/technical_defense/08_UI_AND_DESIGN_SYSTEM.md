@@ -93,7 +93,7 @@ Every async screen uses `AsyncValue.when` (or `valueOrNull` + flags):
 | Empty | `EmptyState` with a translated message |
 | Error | `ErrorView` with `ApiException.localized(l10n)` + Retry |
 | Next page | Footer spinner; footer Retry if `tasksLoadMoreFailedProvider` |
-| Offline | `SyncStatusBar` above the navigation bar; `PendingSyncBadge` on tasks with unsent changes |
+| No connection | `ErrorView` with the translated "No internet connection" message + Retry (offline mode was removed on 2026-10-18) |
 
 ---
 

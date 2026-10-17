@@ -12,9 +12,9 @@
 
 *[Task details]* Each task has a description, deadline, priority, checklist, attachments and comments. The worker taps **Start**, does the work, ticks the checklist, takes photos and submits. The admin sees the result live on the dashboard.
 
-Two things make it robust. First, it works **offline**: tasks are cached, and every change made without a connection is queued and sent in the right order when the connection returns. Second, it is **live**: when an admin changes a task, the app updates within a second through a server event stream, and push notifications reach the worker even when the app is closed.
+Two things make it robust. First, the session is **secure without being annoying**: the login token lasts only 15 minutes and is renewed silently in the background, so the worker stays signed in while a stolen token quickly becomes useless. Second, it is **live**: when an admin changes a task, the app updates within a second through a server event stream, and push notifications reach the worker even when the app is closed.
 
-Technically it's Flutter with Riverpod for state, GoRouter for navigation, Dio for the API and Firebase for push. It supports English and Arabic with right-to-left layout, light and dark themes, and has 149 automated tests passing."
+Technically it's Flutter with Riverpod for state, GoRouter for navigation, Dio for the API and Firebase for push. It supports English and Arabic with right-to-left layout, light and dark themes, and has 144 automated tests passing."
 
 ---
 
@@ -32,13 +32,13 @@ Technically it's Flutter with Riverpod for state, GoRouter for navigation, Dio f
 - *[Notifications]* "Every assignment or comment arrives here and as a push notification; tapping opens the right task."
 
 **3. Architecture (1 min)**
-*[Diagram from doc 03]* "The code is organised by feature. Screens watch Riverpod providers. Providers call repositories, and repositories decide between the server, the local cache and the offline queue. A single Dio client adds the login token and turns every error into one app-level type, so every screen shows the same friendly, translated messages."
+*[Diagram from doc 03]* "The code is organised by feature. Screens watch Riverpod providers. Providers call repositories, and repositories call the server through one Dio client. That client adds the login token, renews it when it expires, and turns every error into one app-level type, so every screen shows the same friendly, translated messages."
 
-**4. Offline and live updates (1 min)**
-*[Airplane mode demo]* "I'll turn off the network and start this task. It's marked 'waiting to sync'. Now I turn the network back on, and the sync bar sends it. If the server refuses a change, for example because the task was cancelled meanwhile, it isn't lost silently: it's listed for the worker. Live updates use Server-Sent Events, so admin changes appear without refreshing."
+**4. Sessions and live updates (1 min)**
+*[Dashboard and phone side by side]* "The admin changes this task's deadline in the dashboard, and the phone updates on its own: live updates use Server-Sent Events. Behind the scenes, the login token expires every 15 minutes. When a request is rejected, the app trades its refresh token for a new pair and repeats the request, so the worker never notices. Each refresh token works only once, so a copied token is detected and the session is ended."
 
 **5. Quality and next steps (30 s)**
-"149 tests cover offline sync, live updates, session handling, pagination and layout on small screens in both languages. Before a store release we need HTTPS, a real signing key and the iOS configuration. Those are the next steps."
+"144 tests cover token refresh, live updates, session handling, pagination and layout on small screens in both languages. Before a store release we need HTTPS, a real signing key and the iOS configuration. Those are the next steps."
 
 ---
 
@@ -55,19 +55,19 @@ Follow the manual checklist in doc 11 §3, steps 1–8. Narrate:
 - Dark mode.
 
 ### Part 3 — Architecture deep dive (2 min)
-- *[Project tree]* "Feature folders: `auth`, `tasks`, `calendar`, `notifications`, `profile`, `sync`, `realtime`… each with data, domain, providers, screens and widgets."
-- *[Sequence diagram "Start task", doc 03 §3]* "Tap → notifier → repository → data source → Dio with the token → server. If it fails because there's no connection, the repository queues the change and returns the cached task with the change applied, so the screen behaves the same online and offline."
+- *[Project tree]* "Feature folders: `auth`, `tasks`, `calendar`, `notifications`, `profile`, `realtime`… each with data, domain, providers, screens and widgets."
+- *[Sequence diagram "Start task", doc 03 §3]* "Tap → notifier → repository → data source → Dio with the token → server. If the token has expired, Dio gets a new one and sends the same request again; none of the layers above it knows."
 - "Dependency injection is Riverpod itself: every service is a provider, and tests replace any of them."
 
 ### Part 4 — Key engineering decisions (2 min)
 1. **Single error type.** `ApiException` with a `kind`; the UI never sees Dio errors. Benefit: consistent, translated messages.
-2. **Reachability from real requests, not a Wi-Fi plugin.** "Connected to Wi-Fi" doesn't mean "server reachable".
-3. **Ordered queue per task.** Once a task has an unsent change, later changes queue behind it, so the server never receives "complete" before "start".
+2. **Short sessions with silent refresh.** 15-minute access tokens, rotating single-use refresh tokens, and one shared refresh when several requests fail at once.
+3. **No data stored on the phone.** Offline mode was removed on purpose: the worker always sees the server's current data, and nothing sensitive sits unencrypted on the device.
 4. **Firebase in the background.** The splash appears immediately; if Firebase is missing, the app still works.
-5. **Session validation at startup.** Offline keeps you signed in with cached data; a rejected token sends you to login; a server error shows Retry.
+5. **Session validation at startup.** A valid or renewable session opens Home; a rejected one sends you to login; no connection or a server error shows Retry.
 
 ### Part 5 — Quality (1 min)
-- 149 tests, analyzer clean.
+- 144 tests, analyzer clean.
 - Robustness tests: 360 dp at 1.3× text in both languages and themes.
 - Contrast-checked colors (≥ 4.5:1).
 
@@ -75,10 +75,8 @@ Follow the manual checklist in doc 11 §3, steps 1–8. Narrate:
 "Before production:
 1. HTTPS. Android release builds block plain HTTP.
 2. Real signing key and package name.
-3. A global handler that logs out on an expired session.
-4. Encrypt the offline cache.
-5. Statistics from the server instead of loaded pages.
-6. iOS configuration, integration tests and crash reporting."
+3. Statistics and search from the server instead of loaded pages.
+4. iOS configuration, integration tests and crash reporting."
 
 ### Closing (15 s)
 "TaskFlow mobile turns assigned work into a clear daily flow for the worker, keeps working without a network, and keeps the admin informed in real time. Thank you. I'm happy to take questions."

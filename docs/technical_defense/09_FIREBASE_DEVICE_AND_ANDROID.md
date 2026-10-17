@@ -73,13 +73,12 @@ Push delivery end-to-end needs the backend's Firebase service account and a real
 |---|---|---|---|
 | Camera / gallery photos | `image_picker` | `CompleteTaskScreen` via `PhotoSourceSheet`; profile avatar | Android needs no manual permission for the system picker. **iOS needs `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` — missing → crash on iOS** |
 | Files | `file_picker` | `CompleteTaskScreen` | System document picker |
-| Persistent file copies | `path_provider` | `OfflineFiles.keep()` | Keeps picked files for queued uploads |
 | Open links / attachments | `url_launcher` | `attachments_section.dart`, legal "open in browser" | Opens external apps |
 | WebView | `webview_flutter` | `LegalWebViewScreen` | `JavaScriptMode.disabled` |
 | Secure storage | `flutter_secure_storage` | token | Keystore / Keychain |
 | Local notifications | `flutter_local_notifications` | `NotificationService` | channel `taskflow_updates` |
 
-Not used: location/GPS, biometrics, background services, connectivity plugin.
+Not used: location/GPS, biometrics, background services, connectivity plugin, local file storage (offline mode removed 2026-10-18).
 
 ---
 
@@ -103,7 +102,7 @@ Not used: location/GPS, biometrics, background services, connectivity plugin.
 - `android/app/src/debug/AndroidManifest.xml`: `<application android:usesCleartextTraffic="true" />` — **debug only**.
 - `main` and `profile` manifests: no cleartext flag, no `networkSecurityConfig`.
 - Since Android 9 (API 28) cleartext is **blocked by default**. The default API URL is `http://192.168.0.101:3000`.
-- **Effect:** a `flutter build apk --release` / `flutter run --release` build **cannot reach the backend**; every request fails as a connection error → the app treats it as *offline*.
+- **Effect:** a `flutter build apk --release` / `flutter run --release` build **cannot reach the backend**; every request fails as a connection error → login shows "No internet connection".
 - Fix options (for the team, not done in this audit): serve the API over **HTTPS** (correct for production), or add a `network_security_config.xml` that allows cleartext only for the dev host.
 
 *Status: Confirmed by reading the three manifests and the merged debug/release manifests.*

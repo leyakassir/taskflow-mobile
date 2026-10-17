@@ -1,6 +1,6 @@
 # 04 — Authentication and Storage
 
-> **Last audited:** 2026-10-14. Key files: `features/auth/**`, `core/storage/secure_storage_service.dart`, `core/storage/local_storage_service.dart`, `core/constants/storage_keys.dart`, `core/network/api_interceptor.dart`, `core/offline/offline_store.dart`.
+> **Last audited:** 2026-10-14 · **Updated:** 2026-10-18 (15-minute access token + refresh token; offline cache removed). Key files: `features/auth/**`, `core/storage/secure_storage_service.dart`, `core/storage/local_storage_service.dart`, `core/constants/storage_keys.dart`, `core/network/api_interceptor.dart`, `core/network/dio_client.dart`.
 >
 > No token or password value appears in this document.
 
@@ -23,12 +23,11 @@ sequenceDiagram
   F->>AC: login(email, password)
   AC->>AR: login
   AR->>DS: login
-  DS->>API: {email, password}
-  API-->>DS: {accessToken, user{id,email,fullName,role}}
+  DS->>API: {email, password, client: "mobile"}
+  API-->>DS: {accessToken, refreshToken, expiresIn, user{…}}
   DS-->>AR: LoginResponseModel
-  AR->>SS: write("accessToken", token)
+  AR->>SS: write accessToken, refreshToken
   AR-->>AC: User
-  AC->>AC: different user than cached profile? → clear offline data
   AC->>AC: _clearUserData() (invalidate per-user providers)
   AC->>AC: state = AsyncData(true)
   AC->>AC: FcmService.initializeForAuthenticatedUser()
@@ -40,11 +39,11 @@ sequenceDiagram
 |---|---|---|
 | Client validation | `widgets/login_form.dart` → `_submit()` | Both fields required; email regex `^[^@\s]+@[^@\s]+\.[^@\s]+$`. No password length rule on login (server decides). |
 | Loading state | `_isSubmitting` in `LoginForm` state | Button disabled / spinner while true. |
-| Request | `AuthRemoteDataSource.login` → `POST /auth/login` | Body `{email, password}`. |
-| Response parsing | `LoginResponseModel.fromJson` | `json['accessToken'] as String` — a missing field throws a `TypeError`, caught by `_submit`'s generic `catch` → "generic error" message. |
-| Error display | `on ApiException catch (e)` → `e.localized(l10n)` | Server text (e.g. invalid credentials) is shown as sent; app-side errors (offline/timeout) are translated. |
+| Request | `AuthRemoteDataSource.login` → `POST /auth/login` | Body `{email, password, client: 'mobile'}`. `client: 'mobile'` asks the backend for a 15-minute access token **plus** a refresh token. The dashboard doesn't send it and still gets one long-lived token. |
+| Response parsing | `LoginResponseModel.fromJson` | Requires both `accessToken` and `refreshToken` as strings; otherwise throws `ApiException.generic()` → "Something went wrong". |
+| Error display | `on ApiException catch (e)` → `e.localized(l10n)` | Server text (e.g. "Invalid email or password") is shown as sent; app-side errors (no connection, timeout) are translated. |
 | Navigation | Not done by the form — comment: *"router will redirect based on auth state"* | Redirect rule: authenticated on `/login` → `/app/home`. |
-| Account switch | `AuthController.login` compares `offlineStore.readMap('profile')['id']` with the new user id | Same user → keeps unsent offline changes (e.g. re-login after expiry). Different user → wipes queue, cache, kept files. **Confirmed** in source. |
+| Previous user's data | `AuthController._clearUserData()` | Invalidates every per-user provider, so a new login never shows the last user's tasks. Nothing user-related is stored on the phone any more. |
 
 **Role check:** the app does **not** restrict login by role (no `role ==` check in the auth flow). Role is only displayed (profile header, comment badges). Restricting who can sign in is the backend's job. *Confirmed by search.*
 
@@ -57,12 +56,11 @@ Covered in [02 §1](02_STARTUP_AND_NAVIGATION.md). Summary of `AuthRepositoryImp
 | Situation | Result | User sees |
 |---|---|---|
 | No saved token | `false` | Login |
-| `GET /auth/me` 200 | `true` | Home |
-| No connection / connect timeout | `true` | Home with cached data (offline mode) |
-| 401 or 403 | token deleted, `false` | Login |
-| 5xx, receive timeout, other | rethrown | Splash error panel + Retry |
+| `GET /auth/me` 200 (access token renewed on the way if expired) | `true` | Home |
+| 401 or 403 (refresh rejected too) | both tokens deleted, `false` | Login |
+| No connection, 5xx, timeout | rethrown, tokens kept | Splash error panel + Retry |
 
-**Confirmed** by `test/offline_session_test.dart`.
+**Confirmed** by `test/session_test.dart` (3 startup tests).
 
 ---
 
@@ -71,13 +69,10 @@ Covered in [02 §1](02_STARTUP_AND_NAVIGATION.md). Summary of `AuthRepositoryImp
 `AuthController.signOut()` — order matters:
 
 1. `state = AsyncLoading()`.
-2. `fcmService.unregisterForLogout()` — **while the token is still valid**: `DELETE /me/device-token {token}`, then `FirebaseMessaging.deleteToken()`. Best effort, errors only logged.
-3. `repository.logout()` — deletes `accessToken` and `refreshToken` from secure storage.
-4. `_clearOfflineData()` — clears `SyncQueue`, `OfflineStore` (all `offline.*` keys), `OfflineFiles`; invalidates `syncControllerProvider`.
-5. `_clearUserData()` — invalidates tasks, paging flags, profile, notifications, calendar, task details, comments.
-6. `state = AsyncData(false)` → router guard sends any `/app/*` location to `/login`.
-
-Before calling it, `ProfileScreen` (`profile_screen.dart`, logout `onPressed`) shows `LogoutPendingDialog(pendingCount: …)` when the sync queue is not empty, because those changes would be lost. *Confirmed in source.*
+2. `fcmService.unregisterForLogout()` — **while the session is still valid**: `DELETE /me/device-token {token}`, then `FirebaseMessaging.deleteToken()`. Best effort, errors only logged.
+3. `repository.logout()` — `POST /auth/logout {refreshToken}` so the server revokes the refresh token (best effort: logout works without a connection), then deletes `accessToken` and `refreshToken` from secure storage.
+4. `_clearUserData()` — invalidates tasks, paging flags, profile, notifications, calendar, task details, comments.
+5. `state = AsyncData(false)` → router guard sends any `/app/*` location to `/login`.
 
 Settings (theme, language) and `hasSeenOnboarding` are **kept** after logout — they are device preferences, not user data.
 
@@ -87,20 +82,18 @@ Settings (theme, language) and `hasSeenOnboarding` are **kept** after logout —
 
 | Data | Storage | Key | Encrypted? | Cleared on logout? |
 |---|---|---|---|---|
-| Access token (JWT) | `flutter_secure_storage` | `accessToken` | Yes — Android Keystore-backed / iOS Keychain (*inferred from plugin defaults; `const FlutterSecureStorage()` with no options*) | Yes |
-| Refresh token | `flutter_secure_storage` | `refreshToken` | — | Deleted, but **never written** (no refresh-token flow exists) |
+| Access token (JWT, 15 min) | `flutter_secure_storage` | `accessToken` | Yes — Android Keystore-backed / iOS Keychain (*inferred from plugin defaults; `const FlutterSecureStorage()` with no options*) | Yes |
+| Refresh token (30 days, single use) | `flutter_secure_storage` | `refreshToken` | Yes (same) | Yes, and revoked on the server |
 | Theme | SharedPreferences | `themeMode` (`light`/`dark`) | No | No |
 | Language | SharedPreferences | `localeCode` (`en`/`ar`) | No | No |
 | Onboarding seen | SharedPreferences | `hasSeenOnboarding` | No | No |
-| Cached tasks, profile, notifications, comments | SharedPreferences (JSON) | `offline.tasks`, `offline.profile`, `offline.notifications`, `offline.comments.<taskId>` | **No** | Yes |
-| Unsent changes | SharedPreferences (JSON) | `offline.queue` | **No** | Yes |
-| Files picked while offline | App documents dir (`path_provider`) via `OfflineFiles` | — | No | Yes (`OfflineFiles.clear()`) |
+| Tasks, profile, notifications, comments | **Not stored** — memory only, reloaded from the API (offline cache removed 2026-10-18) | — | — | — |
 | Password | **Not stored anywhere** | — | — | — |
 | FCM device token | Managed by Firebase SDK; sent to backend | — | — | Deleted (`deleteToken`) |
 
 ### Secure storage vs SharedPreferences
-- **Secure storage** = encrypted by the OS key store; slower, async; right for secrets (the bearer token).
-- **SharedPreferences** = plain XML (Android) / plist (iOS) in the app sandbox; fast, loaded synchronously at startup; right for preferences. The offline cache is stored here for speed and simplicity — it contains task content and the user's profile **in clear text** inside the app sandbox (protected by the OS from other apps, not from a rooted device or a backup). See doc 10.
+- **Secure storage** = encrypted by the OS key store; slower, async; right for secrets (both tokens).
+- **SharedPreferences** = plain XML (Android) / plist (iOS) in the app sandbox; fast, loaded synchronously at startup; right for preferences. It now holds only theme, language and the onboarding flag.
 
 ---
 
@@ -108,24 +101,59 @@ Settings (theme, language) and `hasSeenOnboarding` are **kept** after logout —
 
 `ApiInterceptor.onRequest` (`core/network/api_interceptor.dart`) reads `accessToken` from secure storage **on every request** and sets `Authorization: Bearer <token>` when present. Login itself is sent the same way (no token yet → no header).
 
-The SSE stream (`RealtimeRemoteDataSource`) uses the same `dioProvider`, so it is authenticated the same way. *Confirmed — it reads `dioProvider`.*
+The SSE stream (`RealtimeRemoteDataSource`) uses the same `dioProvider`, so it is authenticated — and renewed — the same way. *Confirmed — it reads `dioProvider`.*
 
 `Image.network` for attachment thumbnails and the legal WebView do **not** send the token (they load public URLs). *Confirmed in `attachments_section.dart`, `legal_webview_screen.dart`.*
 
 ---
 
-## 6. Token expiry and 401 — what really happens
+## 6. Silent token refresh (15-minute sessions)
 
-- The backend issues a JWT valid for **1 year** (`JWT_EXPIRES_IN_SECONDS`, backend config — *unverified from mobile code; from project history*).
-- **No refresh token flow** exists in the app.
-- **No global 401 handler**: `ApiInterceptor.onError` maps a 401 to `ApiException(statusCode: 401, kind: server)` and the screen shows the backend's message. It does not sign the user out or redirect.
-- `SyncController._shouldRetryLater` treats 401 as temporary → queued changes stay.
-- `RealtimeController._connect` stops retrying on 401/403.
-- On next app start, the splash's `validateSession` gets 401 → token deleted → Login. Re-login as the **same user** keeps the queued changes, which then sync.
+The technique is called **silent token refresh with refresh-token rotation** (a *sliding session*).
 
-**Status:** Confirmed in source; it is a known limitation (doc 10, finding M1).
+```mermaid
+sequenceDiagram
+  participant App as Any request (Dio)
+  participant I as ApiInterceptor.onError
+  participant SS as SecureStorage
+  participant API as Backend
+  App->>API: GET /tasks (access token)
+  API-->>I: 401 (access token older than 15 min)
+  I->>I: only one refresh at a time (_refreshing)
+  I->>SS: read refreshToken
+  I->>API: POST /auth/refresh {refreshToken} (separate Dio, no interceptor)
+  alt accepted
+    API-->>I: {accessToken, refreshToken} (old refresh token now dead)
+    I->>SS: save both
+    I->>API: resend GET /tasks with the new token (once)
+    API-->>App: 200 — the user noticed nothing
+  else rejected (401)
+    I->>SS: delete both tokens
+    I->>I: onSessionExpired() → AuthController.sessionExpired()
+    Note over App: state false → router → /login
+  else no connection
+    I-->>App: error shown; tokens kept, next request tries again
+  end
+```
 
-How to explain it: *"Sessions last a year, so expiry is rare. If it happens, the user's offline work is preserved, and the next start sends them to login. A global 401 handler that logs the user out would be the next improvement."*
+| Rule | Where | Why |
+|---|---|---|
+| Access token lifetime 15 min | backend `MOBILE_ACCESS_TOKEN_SECONDS=900` | A stolen access token is only useful for minutes |
+| Refresh token lifetime 30 days **from its last use** | backend `REFRESH_TOKEN_TTL_DAYS=30` | Each refresh issues a new 30-day token, so a worker who opens the app at least monthly stays signed in |
+| Refresh tokens are single use | backend `RefreshTokenService.refresh` | Reusing an old one revokes all of the user's sessions (it means the token was copied) |
+| One refresh at a time | `ApiInterceptor._refreshing` | Several requests failing together share one refresh instead of spending the single-use token twice |
+| Resend only once | `extra['tokenRefreshRetried']` | No retry loops |
+| Never refresh for `/auth/login`, `/auth/refresh`, `/auth/logout` | `_noRefreshPaths` | A wrong password (401) is not an expired session |
+| Uploads can be resent | `FormData.clone()` | A multipart body can only be sent once |
+| Only stored as a hash on the server | backend `RefreshToken.tokenHash` (SHA-256) | A database leak doesn't reveal usable tokens |
+
+**When the user is sent to login** (the only cases):
+1. 30 days without opening the app.
+2. Password reset (the backend revokes all refresh tokens).
+3. Account deactivated by an admin.
+4. The user taps Log out.
+
+**Confirmed** by `test/session_test.dart` (5 refresh tests: renew + resend, shared refresh, rejected → logout, no connection → tokens kept, wrong password not treated as expiry) and by an end-to-end run against the real backend on 2026-10-18 (12 checks, all passed).
 
 ---
 
@@ -149,6 +177,7 @@ sequenceDiagram
 - Resend: `widgets/resend_code_button.dart` (cool-down timer).
 - `lang` is the app's language so the email is in Arabic or English.
 - Actions live in `providers/password_reset_provider.dart` → `PasswordResetActions`.
+- A reset ends every other session, including mobile refresh tokens.
 
 ## 8. Request an account
 
@@ -160,7 +189,8 @@ sequenceDiagram
 
 ## 9. Defense answers in one line each
 
-- *Where is the token?* Secure storage, key `accessToken`, read by `ApiInterceptor` per request.
-- *Why not SharedPreferences for the token?* It isn't encrypted.
-- *What if the token is stolen?* It is valid until expiry (1 year) unless the backend revokes it — no rotation on the client. Admit it.
-- *How do you stop user A seeing user B's data?* `AuthController.login` wipes the offline store if the user id changes, and invalidates all per-user providers on login and logout.
+- *Where are the tokens?* Secure storage: `accessToken` (15 min) and `refreshToken` (30 days); `ApiInterceptor` adds the access token to every request.
+- *Why not SharedPreferences for the tokens?* It isn't encrypted.
+- *What happens when the access token expires?* The interceptor trades the refresh token for a new pair and resends the request; the user notices nothing.
+- *What if a token is stolen?* An access token works for at most 15 minutes. A refresh token is single use; if the thief and the real app both use it, the server sees the reuse and ends every session of that user.
+- *How do you stop user A seeing user B's data?* Nothing user-related is saved on the phone, and `_clearUserData` invalidates all per-user providers on login, logout and session end.

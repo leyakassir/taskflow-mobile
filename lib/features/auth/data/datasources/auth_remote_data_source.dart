@@ -97,13 +97,27 @@ class AuthRemoteDataSource {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         ApiConstants.login,
-        data: {'email': email, 'password': password},
+        // Mobile sessions: 15-minute access token plus a refresh token.
+        data: {'email': email, 'password': password, 'client': 'mobile'},
       );
       final data = response.data;
       if (data == null) {
         throw const ApiException.generic();
       }
       return LoginResponseModel.fromJson(data);
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw const ApiException.generic();
+    }
+  }
+
+  /// Ends the session on the server: the refresh token stops working.
+  Future<void> logout(String refreshToken) async {
+    try {
+      await _dio.post<void>(
+        ApiConstants.logout,
+        data: {'refreshToken': refreshToken},
+      );
     } on DioException catch (e) {
       if (e.error is ApiException) throw e.error as ApiException;
       throw const ApiException.generic();

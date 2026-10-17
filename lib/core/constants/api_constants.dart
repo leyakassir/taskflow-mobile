@@ -7,7 +7,7 @@ class ApiConstants {
   /// use http://10.0.2.2:3000.
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.10.226:3000',
+    defaultValue: 'http://192.168.0.101:3000',
   );
 
   static const Duration connectTimeout = Duration(seconds: 15);
@@ -20,6 +20,8 @@ class ApiConstants {
   static const String events = '/events';
 
   static const String login = '/auth/login';
+  static const String refresh = '/auth/refresh';
+  static const String logout = '/auth/logout';
   static const String forgotPassword = '/auth/forgot-password';
   static const String resetPassword = '/auth/reset-password';
   static const String signupRequests = '/signup-requests';

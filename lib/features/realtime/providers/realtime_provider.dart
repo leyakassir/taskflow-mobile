@@ -5,12 +5,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:taskflow_mobile/core/network/api_exceptions.dart';
-import 'package:taskflow_mobile/core/offline/connectivity_provider.dart';
 import 'package:taskflow_mobile/features/calendar/providers/calendar_provider.dart';
 import 'package:taskflow_mobile/features/notifications/providers/notifications_provider.dart';
 import 'package:taskflow_mobile/features/realtime/data/datasources/realtime_remote_data_source.dart';
 import 'package:taskflow_mobile/features/realtime/domain/entities/realtime_event.dart';
-import 'package:taskflow_mobile/features/tasks/data/repositories/task_repository_impl.dart';
 import 'package:taskflow_mobile/features/tasks/providers/task_comments_provider.dart';
 import 'package:taskflow_mobile/features/tasks/providers/task_details_provider.dart';
 import 'package:taskflow_mobile/features/tasks/providers/tasks_provider.dart';
@@ -63,9 +61,6 @@ class RealtimeController extends AutoDisposeNotifier<bool> {
         _disconnect();
       },
     );
-    ref.listen<bool>(connectivityProvider, (was, isOnline) {
-      if (isOnline && was == false) _connect();
-    });
     ref.onDispose(() {
       _active = false;
       _disconnect();
@@ -168,10 +163,6 @@ class RealtimeController extends AutoDisposeNotifier<bool> {
 
     try {
       if (tasksChanged) {
-        // Keeps the offline copy current too (drops tasks taken away).
-        try {
-          await ref.read(taskRepositoryProvider).refreshAllTasks();
-        } catch (_) {}
         await ref.read(tasksControllerProvider.notifier).reloadQuietly();
         ref.invalidate(calendarMonthTasksProvider);
         for (final id in tasks) {

@@ -289,48 +289,6 @@
   "profileInactive": "Inactive",
   "profilePreferences": "Preferences",
   "profileSettingsSubtitle": "Language, appearance and more",
-  "syncOffline": "You're offline. Showing saved data.",
-  "syncWaiting": "Waiting to sync: {count}",
-  "@syncWaiting": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "syncSyncing": "Syncing your changes…",
-  "syncFailedCount": "Couldn't sync: {count}",
-  "@syncFailedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "syncDetails": "Details",
-  "syncFailuresTitle": "Changes that couldn't be synced",
-  "syncFailuresMessage": "The server refused these changes, usually because the task was changed, reassigned or cancelled while you were offline.",
-  "syncDismiss": "Dismiss",
-  "syncActionStatus": "Start task",
-  "syncActionUpload": "Upload photo or file",
-  "syncActionComplete": "Submit completion",
-  "syncActionComment": "Comment",
-  "syncActionNotification": "Mark notification read",
-  "pendingSyncBadge": "Waiting to sync",
-  "commentPending": "Sends when you're online",
-  "photoSavedOffline": "Photo saved. It will upload when you're back online.",
-  "filesSavedOffline": "Files saved. They will upload when you're back online.",
-  "completionSavedOffline": "Saved. The task will be submitted when you're back online.",
-  "logoutPendingTitle": "Unsynced changes",
-  "logoutPendingMessage": "{count} change(s) haven't reached the server yet. If you log out now, they will be lost.",
-  "@logoutPendingMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "logoutAnyway": "Log out anyway",
   "legalReload": "Reload",
   "profileUpdated": "Name updated.",
   "passwordsTooShort": "Both passwords must be at least 8 characters.",

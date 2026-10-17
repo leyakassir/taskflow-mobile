@@ -45,8 +45,6 @@ class FakePagedRepository implements TaskRepository {
   }
 
   @override
-  Future<void> refreshAllTasks() async {}
-  @override
   Future<List<Task>> getTasksInRange({
     required DateTime from,
     required DateTime to,
@@ -60,11 +58,11 @@ class FakePagedRepository implements TaskRepository {
   Future<Task> completeTask(String taskId, TaskSubmissionModel s) async =>
       _task(0);
   @override
-  Future<AttachmentUploadResult> uploadAttachment({
+  Future<void> uploadAttachment({
     required String taskId,
     required String filePath,
     required String kind,
-  }) async => AttachmentUploadResult.uploaded;
+  }) async {}
 }
 
 (ProviderContainer, FakePagedRepository) _setUp(int total) {

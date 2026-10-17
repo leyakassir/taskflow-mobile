@@ -5,8 +5,6 @@ import 'package:taskflow_mobile/features/profile/widgets/profile_logout_button.d
 import 'package:taskflow_mobile/features/profile/widgets/profile_menu_section.dart';
 import 'package:taskflow_mobile/features/tasks/widgets/task_card_skeleton.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:taskflow_mobile/core/offline/sync_queue.dart';
-import 'package:taskflow_mobile/features/profile/widgets/logout_pending_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -114,15 +112,6 @@ class ProfileScreen extends ConsumerWidget {
                       const SizedBox(height: AppDimensions.sectionSpacing),
                       ProfileLogoutButton(
                         onPressed: () async {
-                          final pending = ref.read(syncQueueProvider).length;
-                          if (pending > 0) {
-                            final confirmed = await showDialog<bool>(
-                              context: context,
-                              builder: (_) =>
-                                  LogoutPendingDialog(pendingCount: pending),
-                            );
-                            if (confirmed != true) return;
-                          }
                           await ref
                               .read(authControllerProvider.notifier)
                               .signOut();

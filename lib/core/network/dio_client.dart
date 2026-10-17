@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:taskflow_mobile/core/constants/api_constants.dart';
 import 'package:taskflow_mobile/core/network/api_interceptor.dart';
-import 'package:taskflow_mobile/core/offline/connectivity_provider.dart';
 import 'package:taskflow_mobile/core/storage/secure_storage_service.dart';
+import 'package:taskflow_mobile/features/auth/providers/auth_provider.dart';
 
 /// Single centralized Dio instance. Never create Dio elsewhere.
 final dioProvider = Provider<Dio>((ref) {
@@ -19,13 +19,14 @@ final dioProvider = Provider<Dio>((ref) {
     ),
   );
 
-  // Every request doubles as a connectivity check (see connectivityProvider).
   dio.interceptors.add(
     ApiInterceptor(
       secureStorage,
-      onReachable: () => ref.read(connectivityProvider.notifier).reportOnline(),
-      onUnreachable: () =>
-          ref.read(connectivityProvider.notifier).reportOffline(),
+      client: () => dio,
+      // Read when it happens, not here: the auth controller itself depends
+      // on this provider.
+      onSessionExpired: () =>
+          ref.read(authControllerProvider.notifier).sessionExpired(),
     ),
   );
   return dio;

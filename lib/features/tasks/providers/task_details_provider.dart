@@ -5,7 +5,6 @@ import 'package:taskflow_mobile/core/network/api_exceptions.dart';
 import 'package:taskflow_mobile/features/tasks/data/models/task_submission_model.dart';
 import 'package:taskflow_mobile/features/tasks/data/repositories/task_repository_impl.dart';
 import 'package:taskflow_mobile/features/tasks/domain/entities/task.dart';
-import 'package:taskflow_mobile/features/tasks/domain/repositories/task_repository.dart';
 import 'package:taskflow_mobile/features/tasks/providers/tasks_provider.dart';
 
 final taskDetailsControllerProvider =
@@ -54,7 +53,7 @@ class TaskDetailsController extends FamilyAsyncNotifier<Task, String> {
     _syncIntoTaskList(updated);
   }
 
-  Future<AttachmentUploadResult> uploadAttachment({
+  Future<void> uploadAttachment({
     required String filePath,
     required String kind,
   }) {

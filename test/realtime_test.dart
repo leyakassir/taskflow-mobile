@@ -38,7 +38,6 @@ class FakeStreamSource extends RealtimeRemoteDataSource {
 
 class CountingTaskRepository implements TaskRepository {
   int listLoads = 0;
-  int fullRefreshes = 0;
 
   @override
   Future<TaskPage> getTasks({int page = 1, int limit = 20}) async {
@@ -53,8 +52,6 @@ class CountingTaskRepository implements TaskRepository {
   }
 
   @override
-  Future<void> refreshAllTasks() async => fullRefreshes++;
-  @override
   Future<List<Task>> getTasksInRange({
     required DateTime from,
     required DateTime to,
@@ -68,7 +65,7 @@ class CountingTaskRepository implements TaskRepository {
   Future<Task> completeTask(String taskId, TaskSubmissionModel s) =>
       throw UnimplementedError();
   @override
-  Future<AttachmentUploadResult> uploadAttachment({
+  Future<void> uploadAttachment({
     required String taskId,
     required String filePath,
     required String kind,
@@ -161,7 +158,6 @@ void main() {
         ..send(RealtimeEventType.task, 't2')
         ..send(RealtimeEventType.task, 't1');
       await Future<void>.delayed(_settle);
-      expect(tasks.fullRefreshes, 1);
       expect(tasks.listLoads, 1);
     });
 

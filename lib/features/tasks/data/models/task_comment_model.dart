@@ -7,7 +7,6 @@ class TaskCommentModel extends TaskComment {
     required super.body,
     required super.createdAt,
     required super.author,
-    super.isPending,
   });
 
   factory TaskCommentModel.fromJson(Map<String, dynamic> json) {

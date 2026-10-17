@@ -4,10 +4,6 @@ import 'package:taskflow_mobile/core/constants/storage_keys.dart';
 import 'package:taskflow_mobile/core/storage/secure_storage_service.dart';
 import 'package:taskflow_mobile/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:taskflow_mobile/core/notifications/fcm_service.dart';
-import 'package:taskflow_mobile/core/offline/offline_files.dart';
-import 'package:taskflow_mobile/core/offline/offline_store.dart';
-import 'package:taskflow_mobile/core/offline/sync_queue.dart';
-import 'package:taskflow_mobile/features/sync/providers/sync_provider.dart';
 import 'package:taskflow_mobile/features/calendar/providers/calendar_provider.dart';
 import 'package:taskflow_mobile/features/notifications/providers/notifications_provider.dart';
 import 'package:taskflow_mobile/features/profile/providers/profile_provider.dart';
@@ -28,25 +24,17 @@ class AuthController extends AsyncNotifier<bool> {
   }
 
   Future<void> login({required String email, required String password}) async {
-    final repository = ref.read(authRepositoryProvider);
-    final user = await repository.login(email: email, password: password);
-    // Offline data on this phone belongs to whoever used it last. Keep it
-    // (including unsent changes) only when the same person signs back in,
-    // e.g. after their session expired.
-    final cachedUserId = ref
-        .read(offlineStoreProvider)
-        .readMap(OfflineStore.profileKey)?['id']
-        ?.toString();
-    if (cachedUserId == null || cachedUserId != user?.id) {
-      await _clearOfflineData();
-    }
+    await ref
+        .read(authRepositoryProvider)
+        .login(email: email, password: password);
     _clearUserData();
     state = const AsyncData(true);
     await ref.read(fcmServiceProvider).initializeForAuthenticatedUser();
   }
 
   Future<bool> validateSession() async {
-    // Errors (offline, server down) propagate so the splash can show them.
+    // Errors (no connection, server down) propagate so the splash can show
+    // them with Retry.
     final isValid = await ref.read(authRepositoryProvider).validateSession();
     state = AsyncData(isValid);
     if (isValid) {
@@ -61,21 +49,17 @@ class AuthController extends AsyncNotifier<bool> {
     // Before the session token is cleared, so the request is authenticated.
     await ref.read(fcmServiceProvider).unregisterForLogout();
     await repository.logout();
-    await _clearOfflineData();
     _clearUserData();
     state = const AsyncData(false);
   }
 
-  /// Removes the offline copy, unsent changes and kept upload files.
-  Future<void> _clearOfflineData() async {
-    await ref.read(syncQueueProvider.notifier).clear();
-    await ref.read(offlineStoreProvider).clear();
-    try {
-      await ref.read(offlineFilesProvider).clear();
-    } catch (_) {
-      // Nothing kept, or the folder is not available on this platform.
-    }
-    ref.invalidate(syncControllerProvider);
+  /// The server ended the session (refresh token expired or revoked, account
+  /// deactivated, password reset). The tokens are already deleted; the
+  /// router sends the user to login once the state is false.
+  void sessionExpired() {
+    if (state.valueOrNull == false) return;
+    _clearUserData();
+    state = const AsyncData(false);
   }
 
   /// Drops everything loaded for the previous account (tasks, profile,

@@ -23,7 +23,6 @@ class TaskComment {
     required this.body,
     required this.createdAt,
     required this.author,
-    this.isPending = false,
   });
 
   final String id;
@@ -31,9 +30,6 @@ class TaskComment {
   final String body;
   final DateTime createdAt;
   final TaskCommentAuthor author;
-
-  /// Written offline and not on the server yet.
-  final bool isPending;
 }
 
 class TaskCommentPage {

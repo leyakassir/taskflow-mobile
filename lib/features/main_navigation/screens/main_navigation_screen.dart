@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taskflow_mobile/features/realtime/providers/realtime_provider.dart';
-import 'package:taskflow_mobile/features/sync/widgets/sync_status_bar.dart';
 import 'package:taskflow_mobile/l10n/gen/app_localizations.dart';
 
 /// Bottom navigation for the shell. Destinations must stay in the same
@@ -20,40 +19,34 @@ class MainNavigationScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SyncStatusBar(),
-          NavigationBar(
-            selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: (index) {
-              navigationShell.goBranch(
-                index,
-                initialLocation: index == navigationShell.currentIndex,
-              );
-            },
-            destinations: [
-              NavigationDestination(
-                icon: const Icon(Icons.home_outlined),
-                selectedIcon: const Icon(Icons.home_rounded),
-                label: l10n.homeTab,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.checklist_outlined),
-                selectedIcon: const Icon(Icons.checklist_rounded),
-                label: l10n.tasksTab,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.calendar_month_outlined),
-                selectedIcon: const Icon(Icons.calendar_month_rounded),
-                label: l10n.calendarTitle,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.person_outline),
-                selectedIcon: const Icon(Icons.person_rounded),
-                label: l10n.profileTab,
-              ),
-            ],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: (index) {
+          navigationShell.goBranch(
+            index,
+            initialLocation: index == navigationShell.currentIndex,
+          );
+        },
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home_rounded),
+            label: l10n.homeTab,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.checklist_outlined),
+            selectedIcon: const Icon(Icons.checklist_rounded),
+            label: l10n.tasksTab,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.calendar_month_outlined),
+            selectedIcon: const Icon(Icons.calendar_month_rounded),
+            label: l10n.calendarTitle,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person_rounded),
+            label: l10n.profileTab,
           ),
         ],
       ),

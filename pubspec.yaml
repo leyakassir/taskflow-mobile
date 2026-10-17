@@ -37,10 +37,6 @@ dependencies:
   dio: ^5.7.0
   shared_preferences: ^2.3.2
 
-  # Immutable models + JSON serialization
-  freezed_annotation: ^2.4.4
-  json_annotation: ^4.9.0
-
   # Push + local notifications
   firebase_core: ^3.8.1
   firebase_messaging: ^15.1.3
@@ -55,14 +51,10 @@ dependencies:
     sdk: flutter
   intl: any
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
   image_picker: ^1.2.3
   file_picker: ^13.1.0
   url_launcher: 6.3.2
   table_calendar: ^3.3.0
-  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:
@@ -75,10 +67,6 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
-  # Code generation for freezed / json_serializable
-  build_runner: ^2.4.13
-  freezed: ^2.5.7
-  json_serializable: ^6.8.0
   flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the

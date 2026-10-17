@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:taskflow_mobile/core/constants/storage_keys.dart';
@@ -27,9 +28,14 @@ class AuthRepositoryImpl implements AuthRepository {
       password: password,
     );
     await _secureStorage.write(StorageKeys.accessToken, result.accessToken);
+    await _secureStorage.write(StorageKeys.refreshToken, result.refreshToken);
     return result.user;
   }
 
+  /// Checks the saved session with the server. An expired access token is
+  /// renewed on the way (see ApiInterceptor). Only a rejected session ends
+  /// it; a network failure or a server error is passed on so the splash
+  /// screen can show it with Retry.
   @override
   Future<bool> validateSession() async {
     final token = await _secureStorage.read(StorageKeys.accessToken);
@@ -39,15 +45,9 @@ class AuthRepositoryImpl implements AuthRepository {
       await _remoteDataSource.validateSession();
       return true;
     } on ApiException catch (error) {
-      // Only a rejected token ends the session. A network failure or a
-      // server error says nothing about the token, so it is passed on and
-      // the splash screen shows it.
-      // No connection: keep the saved session and start in offline mode
-      // with the cached data. The server re-checks the token once online.
-      if (error.isOffline) return true;
       if (!error.isUnauthorized && !error.isForbidden) rethrow;
       try {
-        await _secureStorage.delete(StorageKeys.accessToken);
+        await _deleteTokens();
       } catch (_) {
         // Keep startup resilient if secure storage itself is unavailable.
       }
@@ -92,8 +92,22 @@ class AuthRepositoryImpl implements AuthRepository {
     newPassword: newPassword,
   );
 
+  /// Ends the session on the server (best effort), then forgets the tokens.
   @override
   Future<void> logout() async {
+    final refreshToken = await _secureStorage.read(StorageKeys.refreshToken);
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      try {
+        await _remoteDataSource.logout(refreshToken);
+      } catch (error) {
+        // Signing out on this phone must work even without a connection.
+        debugPrint('Could not end the session on the server: $error');
+      }
+    }
+    await _deleteTokens();
+  }
+
+  Future<void> _deleteTokens() async {
     await _secureStorage.delete(StorageKeys.accessToken);
     await _secureStorage.delete(StorageKeys.refreshToken);
   }
